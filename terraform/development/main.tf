@@ -34,7 +34,7 @@ terraform {
     bucket  = "terraform-state-housing-development"
     encrypt = true
     region  = "eu-west-2"
-    key     = "services/base-listener/state"
+    key     = "services/lbh-housing-register-search-listener/state"
   }
 }
 

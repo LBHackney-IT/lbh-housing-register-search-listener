@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-listener
+	docker-compose build lbh-housing-register-search-listener
 
 .PHONY: serve
 serve:
-	docker-compose build base-listener && docker-compose up base-listener
+	docker-compose build lbh-housing-register-search-listener && docker-compose up lbh-housing-register-search-listener
 
 .PHONY: shell
 shell:
-	docker-compose run base-listener bash
+	docker-compose run lbh-housing-register-search-listener bash
 
 .PHONY: test
 test:
-	docker-compose up dynamodb-database & docker-compose build base-listener-test && docker-compose up base-listener-test
+	docker-compose up dynamodb-database & docker-compose build lbh-housing-register-search-listener-test && docker-compose up lbh-housing-register-search-listener-test
 
 .PHONY: lint
 lint:
