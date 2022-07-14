@@ -45,24 +45,24 @@ namespace HousingRegisterSearchListener.Tests.E2ETests.Stories
             }
         }
 
-        [Fact]
-        public void ListenerUpdatesTheEntity()
-        {
-            var id = Guid.NewGuid();
-            this.Given(g => _entityFixture.GivenAnEntityAlreadyExists(id))
-                .When(w => _steps.WhenTheFunctionIsTriggered(id))
-                .Then(t => _steps.ThenTheEntityIsUpdated(_entityFixture.DbEntity, _dbFixture.DynamoDbContext))
-                .BDDfy();
-        }
+        //[Fact]
+        //public void ListenerUpdatesTheEntity()
+        //{
+        //    var id = Guid.NewGuid();
+        //    this.Given(g => _entityFixture.GivenAnEntityAlreadyExists(id))
+        //        .When(w => _steps.WhenTheFunctionIsTriggered(id))
+        //        .Then(t => _steps.ThenTheEntityIsUpdated(_entityFixture.DbEntity, _dbFixture.DynamoDbContext))
+        //        .BDDfy();
+        //}
 
-        [Fact]
-        public void EntityNotFound()
-        {
-            var id = Guid.NewGuid();
-            this.Given(g => _entityFixture.GivenAnEntityDoesNotExist(id))
-                .When(w => _steps.WhenTheFunctionIsTriggered(id))
-                .Then(t => _steps.ThenAnEntityNotFoundExceptionIsThrown(id))
-                .BDDfy();
-        }
+        //[Fact]
+        //public void EntityNotFound()
+        //{
+        //    var id = Guid.NewGuid();
+        //    this.Given(g => _entityFixture.GivenAnEntityDoesNotExist(id))
+        //        .When(w => _steps.WhenTheFunctionIsTriggered(id))
+        //        .Then(t => _steps.ThenAnEntityNotFoundExceptionIsThrown(id))
+        //        .BDDfy();
+        //}
     }
 }

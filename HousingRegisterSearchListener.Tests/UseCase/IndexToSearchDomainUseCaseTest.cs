@@ -62,27 +62,27 @@ namespace HousingRegisterSearchListener.Tests.UseCase
             func.Should().ThrowAsync<EntityNotFoundException<DomainEntity>>();
         }
 
-        [Fact]
-        public void ProcessMessageAsyncTestSaveEntityThrows()
-        {
-            var exMsg = "This is the last error";
-            _mockGateway.Setup(x => x.SaveEntityAsync(It.IsAny<DomainEntity>()))
-                        .ThrowsAsync(new Exception(exMsg));
+        //[Fact]
+        //public void ProcessMessageAsyncTestSaveEntityThrows()
+        //{
+        //    var exMsg = "This is the last error";
+        //    _mockGateway.Setup(x => x.SaveEntityAsync(It.IsAny<DomainEntity>()))
+        //                .ThrowsAsync(new Exception(exMsg));
 
-            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+        //    Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+        //    func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
-            _mockGateway.Verify(x => x.GetEntityAsync(_domainEntity.Id), Times.Once);
-            _mockGateway.Verify(x => x.SaveEntityAsync(_domainEntity), Times.Once);
-        }
+        //    _mockGateway.Verify(x => x.GetEntityAsync(_domainEntity.Id), Times.Once);
+        //    _mockGateway.Verify(x => x.SaveEntityAsync(_domainEntity), Times.Once);
+        //}
 
-        [Fact]
-        public async Task ProcessMessageAsyncTestSaveEntitySucceeds()
-        {
-            await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+        //[Fact]
+        //public async Task ProcessMessageAsyncTestSaveEntitySucceeds()
+        //{
+        //    await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockGateway.Verify(x => x.GetEntityAsync(_domainEntity.Id), Times.Once);
-            _mockGateway.Verify(x => x.SaveEntityAsync(_domainEntity), Times.Once);
-        }
+        //    _mockGateway.Verify(x => x.GetEntityAsync(_domainEntity.Id), Times.Once);
+        //    _mockGateway.Verify(x => x.SaveEntityAsync(_domainEntity), Times.Once);
+        //}
     }
 }
