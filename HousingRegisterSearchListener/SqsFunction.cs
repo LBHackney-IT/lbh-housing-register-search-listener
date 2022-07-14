@@ -42,7 +42,7 @@ namespace HousingRegisterSearchListener
             services.ConfigureDynamoDB();
 
             services.AddHttpClient();
-            services.AddScoped<IDoSomethingUseCase, DoSomethingUseCase>();
+            services.AddScoped<IDoSomethingUseCase, IndexToSearchDomainUseCase>();
 
             services.AddScoped<IDbEntityGateway, DynamoDbEntityGateway>();
 

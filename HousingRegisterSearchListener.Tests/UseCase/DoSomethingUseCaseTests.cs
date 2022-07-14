@@ -16,7 +16,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
     public class DoSomethingUseCaseTests
     {
         private readonly Mock<IDbEntityGateway> _mockGateway;
-        private readonly DoSomethingUseCase _sut;
+        private readonly IndexToSearchDomainUseCase _sut;
         private readonly DomainEntity _domainEntity;
 
         private readonly EntityEventSns _message;
@@ -28,7 +28,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
             _fixture = new Fixture();
 
             _mockGateway = new Mock<IDbEntityGateway>();
-            _sut = new DoSomethingUseCase(_mockGateway.Object);
+            _sut = new IndexToSearchDomainUseCase(_mockGateway.Object);
 
             _domainEntity = _fixture.Create<DomainEntity>();
             _message = CreateMessage(_domainEntity.Id);
