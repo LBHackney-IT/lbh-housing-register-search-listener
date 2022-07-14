@@ -72,7 +72,8 @@ resource "aws_sqs_queue" "housingregistersearch_queue" {
 
 ### This is the AWS policy that allows the topic to forward an event to the queue declared above
 # 
-# resource "aws_sqs_queue_policy" "housingregistersearch_queue_policy" {
+#
+resource "aws_sqs_queue_policy" "housingregistersearch_queue_policy" {
   queue_url = aws_sqs_queue.housingregistersearch_queue.id
   policy = <<POLICY
   {
