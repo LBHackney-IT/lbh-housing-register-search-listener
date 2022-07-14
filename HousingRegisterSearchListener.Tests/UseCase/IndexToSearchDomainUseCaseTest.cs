@@ -9,13 +9,15 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 namespace HousingRegisterSearchListener.Tests.UseCase
 {
     [Collection("LogCall collection")]
-    public class DoSomethingUseCaseTests
+    public class IndexToSearchDomainUseCaseTest
     {
         private readonly Mock<IDbEntityGateway> _mockGateway;
+        private readonly Mock<ILogger<IndexToSearchDomainUseCase>> _mockLogger;
         private readonly IndexToSearchDomainUseCase _sut;
         private readonly DomainEntity _domainEntity;
 
@@ -23,12 +25,13 @@ namespace HousingRegisterSearchListener.Tests.UseCase
 
         private readonly Fixture _fixture;
 
-        public DoSomethingUseCaseTests()
+        public IndexToSearchDomainUseCaseTest()
         {
             _fixture = new Fixture();
 
             _mockGateway = new Mock<IDbEntityGateway>();
-            _sut = new IndexToSearchDomainUseCase(_mockGateway.Object);
+            _mockLogger = new Mock<ILogger<IndexToSearchDomainUseCase>>();
+            _sut = new IndexToSearchDomainUseCase(_mockGateway.Object, _mockLogger.Object);
 
             _domainEntity = _fixture.Create<DomainEntity>();
             _message = CreateMessage(_domainEntity.Id);
