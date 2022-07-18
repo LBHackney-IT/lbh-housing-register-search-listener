@@ -105,15 +105,12 @@ custom:
     production:
       - sg-0326e27e3d605c143
   subnets:
-    development:
-      subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
+    development:      
+      - subnet-0deabb5d8fb9c3446
+      - subnet-000b89c249f12a8ad
     staging:
-      subnetIds:
-        - subnet-06d3de1bd9181b0d7
-        - subnet-0ed7d7713d1127656
+      - subnet-06d3de1bd9181b0d7
+      - subnet-0ed7d7713d1127656
     production:
-      subnetIds:
-        - subnet-01d3657f97a243261
-        - subnet-0b7b8fea07efabf34
+      - subnet-01d3657f97a243261
+      - subnet-0b7b8fea07efabf34
