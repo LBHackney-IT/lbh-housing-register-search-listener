@@ -104,7 +104,7 @@ custom:
       - sg-01f034186031943c1
     production:
       - sg-0326e27e3d605c143
-  vpc:
+  subnets:
     development:
       subnetIds:
         - subnet-0deabb5d8fb9c3446
