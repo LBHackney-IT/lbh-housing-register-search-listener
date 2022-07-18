@@ -6,7 +6,6 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
-  vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
 
@@ -18,12 +17,16 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: HousingRegisterSearchListener::HousingRegisterSearchListener.SqsFunction::FunctionHandler
     role: lambdaExecutionRole
+    vpc:
+      securityGroupIds: ${self:custom.securityGroups.${self:provider.stage}}
+      subnetIds: ${self:custom.subnets.${self:provider.stage}}    
     environment:
       ### Re-use the same parameter as used by web api applications
       ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
       SEARCHDOMAIN: ${ssm:/housing-${self:provider.stage}/${self:provider.stage}/elasticsearch-domain}
     events:
-      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn} 
+      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn}
+      
       
 resources:
   Resources:
@@ -94,6 +97,13 @@ resources:
                   Resource: "*"
 
 custom:
+  securityGroups:
+    development:
+      - sg-0de8a8ee9797b9e47
+    staging:
+      - sg-01f034186031943c1
+    production:
+      - sg-0326e27e3d605c143
   vpc:
     development:
       subnetIds:
