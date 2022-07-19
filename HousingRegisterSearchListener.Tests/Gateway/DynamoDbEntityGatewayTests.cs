@@ -74,7 +74,7 @@ namespace HousingRegisterSearchListener.Tests.Gateway
 
             var result = await _classUnderTest.GetEntityAsync(domainEntity.Id).ConfigureAwait(false);
 
-            result.Should().BeEquivalentTo(domainEntity,ExcludeDates);
+            result.Should().BeEquivalentTo(domainEntity, ExcludeDates);
             result.Id.Should().Be(domainEntity.Id);
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {domainEntity.Id}", Times.Once());
@@ -82,10 +82,9 @@ namespace HousingRegisterSearchListener.Tests.Gateway
 
         private EquivalencyAssertionOptions<Application> ExcludeDates(EquivalencyAssertionOptions<Application> arg)
         {
-            arg.Excluding(x=>x.SubmittedAt);
+            arg.Excluding(x => x.SubmittedAt);
             arg.Excluding(x => x.VerifyExpiresAt);
             arg.Excluding(x => x.CreatedAt);
-
             return arg;
         }
 
