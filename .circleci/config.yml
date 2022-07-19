@@ -81,20 +81,15 @@ commands:
             chmod +x ./build.sh
             ./build.sh
       - run:
-          name: Deploy elasticsearch deploy hook function
+          name: Deploy lambda
           command: |
             cd ./HousingRegisterSearchListener/
-            sls deploy --stage <<parameters.stage>> --conceal --function SearchDeploymentHookFunction
+            sls deploy --stage <<parameters.stage>> --conceal
       - run:
           name: Invoke elasticsearch deploy hook function
           command: |
             cd ./HousingRegisterSearchListener/
             sls invoke --stage <<parameters.stage>> --conceal --function SearchDeploymentHookFunction --data "${CIRCLE_BUILD_NUM}"
-      - run:
-          name: Deploy lambda
-          command: |
-            cd ./HousingRegisterSearchListener/
-            sls deploy --stage <<parameters.stage>> --conceal 
 
 jobs:
   check-code-formatting:
