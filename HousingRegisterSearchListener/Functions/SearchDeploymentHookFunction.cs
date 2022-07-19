@@ -27,13 +27,17 @@ namespace HousingRegisterSearchListener.Functions
             int documentsIndexed = 0;
 
             //Get the name of the current index
-            var oldIndexNames = await searchGateway.GetReadAliasTarget();
+            var oldIndexNames = await searchGateway.GetReadAliasTargets();
 
             //Ensure the cluster setting to not auto create indices is set
             await searchGateway.SetRecommendedServerSettings();
 
             //Create new mapping based on build number parameter
             var newIndexName = await searchGateway.CreateNewIndex(buildNumber);
+
+            //Move the write alias over to the newly created index
+
+            await searchGateway.SetWriteAlias(newIndexName);
 
             //Index documents into the raw index
 

@@ -19,6 +19,7 @@ namespace HousingRegisterSearchListener.Gateway
         private ElasticClient _client;
 
         const string HousingRegisterReadAlias = "housing-register-applications";
+        const string HousingRegisteeWriteAlias = "housing-register-applications-write";
 
         public SearchGateway(ILogger<SearchGateway> logger, IConfiguration configuration)
         {
@@ -30,7 +31,7 @@ namespace HousingRegisterSearchListener.Gateway
         {
             var searchEntity = application.ToSearch();
 
-            var indexResult = await _client.IndexAsync(searchEntity, i => i.RequireAlias(requireAlias).Index(HousingRegisterReadAlias));
+            var indexResult = await _client.IndexAsync(searchEntity, i => i.RequireAlias(requireAlias).Index(HousingRegisteeWriteAlias));
 
             if (indexResult.IsValid)
             {
@@ -82,7 +83,7 @@ namespace HousingRegisterSearchListener.Gateway
 
         public async Task SetReadAlias(string indexName)
         {
-            List<string> currentReadAliasTargets = await GetReadAliasTarget();
+            List<string> currentReadAliasTargets = await GetReadAliasTargets();
 
             List<IAliasAction> aliasActions = new List<IAliasAction>();
 
@@ -102,9 +103,38 @@ namespace HousingRegisterSearchListener.Gateway
             });
         }
 
-        public async Task<List<string>> GetReadAliasTarget()
+        public async Task SetWriteAlias(string indexName)
+        {
+            List<string> currentReadAliasTargets = await GetWriteAliasTargets();
+
+            List<IAliasAction> aliasActions = new List<IAliasAction>();
+
+            //Remove any existing alias targets
+            foreach (var aliasTarget in currentReadAliasTargets)
+            {
+                aliasActions.Add(new AliasRemoveAction { Remove = new AliasRemoveOperation { Index = aliasTarget, Alias = HousingRegisteeWriteAlias } });
+            }
+
+            //Add the new alias target
+            aliasActions.Add(new AliasAddAction { Add = new AliasAddOperation { Index = indexName, Alias = HousingRegisteeWriteAlias } });
+
+            //Apply add/removes transactionally
+            await _client.Indices.BulkAliasAsync(new BulkAliasRequest
+            {
+                Actions = aliasActions
+            });
+        }
+
+        public async Task<List<string>> GetReadAliasTargets()
         {
             var result = await _client.GetIndicesPointingToAliasAsync(new Names(new[] { HousingRegisterReadAlias }));
+
+            return result.ToList();
+        }
+
+        public async Task<List<string>> GetWriteAliasTargets()
+        {
+            var result = await _client.GetIndicesPointingToAliasAsync(new Names(new[] { HousingRegisteeWriteAlias }));
 
             return result.ToList();
         }
@@ -123,7 +153,6 @@ namespace HousingRegisterSearchListener.Gateway
             {
                 throw bulkIndexResult.OriginalException ?? new Exception($"Server error status code {bulkIndexResult.ServerError.Status} - {bulkIndexResult.ItemsWithErrors.Count()} items had errors - {bulkIndexResult.ServerError.Error.Type} - {bulkIndexResult.ServerError.Error.Reason}- {bulkIndexResult.ServerError.Error.RootCause}");
             }
-
         }
 
         public async Task SetRecommendedServerSettings()
