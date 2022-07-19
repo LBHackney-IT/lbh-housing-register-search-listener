@@ -89,7 +89,7 @@ namespace HousingRegisterSearchListener.Gateway
         {
             var searchEntities = applications.Select(a => a.ToSearch());
 
-            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities);            
+            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities);
 
             if (bulkIndexResult.IsValid)
             {
