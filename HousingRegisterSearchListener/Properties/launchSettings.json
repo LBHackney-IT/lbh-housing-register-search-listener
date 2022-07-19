@@ -2,12 +2,14 @@
   "profiles": {
     "Mock Lambda Test Tool": {
       "commandName": "Executable",
-      "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-3.1.exe",
+      "executablePath": "C%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-6.0.exe",
       "commandLineArgs": "--port 5050",
       "workingDirectory": ".\\bin\\$(Configuration)\\netcoreapp3.1",
       "environmentVariables": {
         "ENVIRONMENT": "LocalDevelopment",
-        "DynamoDb_LocalMode": "true"
+        "DynamoDb_LocalServiceUrl": "http://localhost:8000",
+        "DynamoDb_LocalMode": "true",
+        "SEARCHDOMAIN": "http://localhost:9200"
       }
     }
   }
