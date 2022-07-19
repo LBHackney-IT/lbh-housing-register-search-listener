@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text.Json;
 using HousingRegisterSearchListener.Gateway.Interfaces;
 using HousingRegisterSearchListener.Gateway;
+using HousingRegisterApi.V1.Infrastructure;
 
 namespace HousingRegisterSearchListener
 {
@@ -44,6 +45,7 @@ namespace HousingRegisterSearchListener
 
             services.ConfigureLambdaLogging(Configuration);
             services.AddLogCallAspect();
+            services.ConfigureDynamoDB();
 
             ConfigureServices(services);
 
