@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -82,6 +83,23 @@ namespace HousingRegisterSearchListener.Gateway
         public async Task SetReadAlias(string indexName)
         {
             await _client.Indices.PutAliasAsync(new PutAliasRequest(Indices.Parse(indexName), new Name(HousingRegisterReadAlias)));
+        }
+
+        public async Task<bool> BulkIndexApplications(List<Application> applications)
+        {
+            var searchEntities = applications.Select(a => a.ToSearch());
+
+            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities);            
+
+            if (bulkIndexResult.IsValid)
+            {
+                return true;
+            }
+            else
+            {
+                throw bulkIndexResult.OriginalException ?? new Exception($"Server error status code {bulkIndexResult.ServerError.Status} - {bulkIndexResult.ItemsWithErrors.Count()} items had errors - {bulkIndexResult.ServerError.Error.Type} - {bulkIndexResult.ServerError.Error.Reason}- {bulkIndexResult.ServerError.Error.RootCause}");
+            }
+
         }
     }
 }
