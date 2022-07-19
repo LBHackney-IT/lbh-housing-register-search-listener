@@ -82,7 +82,24 @@ namespace HousingRegisterSearchListener.Gateway
 
         public async Task SetReadAlias(string indexName)
         {
-            await _client.Indices.PutAliasAsync(new PutAliasRequest(Indices.Parse(indexName), new Name(HousingRegisterReadAlias)));
+            List<string> currentReadAliasTargets = await GetReadAliasTarget();
+
+            List<IAliasAction> aliasActions = new List<IAliasAction>();
+
+            //Remove any existing alias targets
+            foreach (var aliasTarget in currentReadAliasTargets)
+            {
+                aliasActions.Add(new AliasRemoveAction { Remove = new AliasRemoveOperation {Index = aliasTarget, Alias = HousingRegisterReadAlias } });
+            }
+
+            //Add the new alias target
+            aliasActions.Add(new AliasAddAction { Add = new AliasAddOperation { Index = indexName, Alias = HousingRegisterReadAlias } });
+
+            //Apply add/removes transactionally
+            await _client.Indices.BulkAliasAsync(new BulkAliasRequest
+            {
+                Actions = aliasActions                
+            });
         }
 
         public async Task<List<string>> GetReadAliasTarget()
