@@ -25,6 +25,9 @@ namespace HousingRegisterSearchListener.Functions
             int documentsIndexed = 0;
             int pageSize = 10;
 
+            //Ensure the cluster setting to not auto create indices is set
+            await searchGateway.SetRecommendedServerSettings();
+
             //Create new mapping based on build number parameter
             var newIndexName = await searchGateway.CreateNewIndex(buildNumber);
 
@@ -37,7 +40,7 @@ namespace HousingRegisterSearchListener.Functions
             //Keep looping until there are no results
             while (resultsPage.Item1.Any())
             {
-                _ = await searchGateway.BulkIndexApplications(resultsPage.Item1);
+                _ = await searchGateway.BulkIndexApplications(resultsPage.Item1, newIndexName);
 
                 documentsIndexed += resultsPage.Item1.Count;
 

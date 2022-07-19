@@ -15,8 +15,10 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
 
         Task SetReadAlias(string indexName);
 
-        Task<bool> BulkIndexApplications(List<Application> applications);
+        Task<bool> BulkIndexApplications(List<Application> applications, string indexNameOverride = null);
 
         Task<List<string>> GetReadAliasTarget();
+
+        Task SetRecommendedServerSettings();
     }
 }

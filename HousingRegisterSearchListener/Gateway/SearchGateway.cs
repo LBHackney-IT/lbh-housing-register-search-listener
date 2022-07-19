@@ -82,7 +82,24 @@ namespace HousingRegisterSearchListener.Gateway
 
         public async Task SetReadAlias(string indexName)
         {
-            await _client.Indices.PutAliasAsync(new PutAliasRequest(Indices.Parse(indexName), new Name(HousingRegisterReadAlias)));
+            List<string> currentReadAliasTargets = await GetReadAliasTarget();
+
+            List<IAliasAction> aliasActions = new List<IAliasAction>();
+
+            //Remove any existing alias targets
+            foreach (var aliasTarget in currentReadAliasTargets)
+            {
+                aliasActions.Add(new AliasRemoveAction { Remove = new AliasRemoveOperation { Index = aliasTarget, Alias = HousingRegisterReadAlias } });
+            }
+
+            //Add the new alias target
+            aliasActions.Add(new AliasAddAction { Add = new AliasAddOperation { Index = indexName, Alias = HousingRegisterReadAlias } });
+
+            //Apply add/removes transactionally
+            await _client.Indices.BulkAliasAsync(new BulkAliasRequest
+            {
+                Actions = aliasActions
+            });
         }
 
         public async Task<List<string>> GetReadAliasTarget()
@@ -92,11 +109,11 @@ namespace HousingRegisterSearchListener.Gateway
             return result.ToList();
         }
 
-        public async Task<bool> BulkIndexApplications(List<Application> applications)
+        public async Task<bool> BulkIndexApplications(List<Application> applications, string indexNameOverride = null)
         {
             var searchEntities = applications.Select(a => a.ToSearch());
 
-            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities);
+            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities, indexNameOverride ?? HousingRegisterReadAlias);
 
             if (bulkIndexResult.IsValid)
             {
@@ -107,6 +124,19 @@ namespace HousingRegisterSearchListener.Gateway
                 throw bulkIndexResult.OriginalException ?? new Exception($"Server error status code {bulkIndexResult.ServerError.Status} - {bulkIndexResult.ItemsWithErrors.Count()} items had errors - {bulkIndexResult.ServerError.Error.Type} - {bulkIndexResult.ServerError.Error.Reason}- {bulkIndexResult.ServerError.Error.RootCause}");
             }
 
+        }
+
+        public async Task SetRecommendedServerSettings()
+        {
+            var response = await _client.Cluster.PutSettingsAsync(new ClusterPutSettingsRequest
+            {
+                Persistent = new Dictionary<string, object> { { "action.auto_create_index", false } }
+            });
+
+            if (!response.Acknowledged)
+            {
+                throw response.OriginalException ?? new Exception($"Server error status code {response.ServerError.Status} - {response.ServerError.Error.Type} - {response.ServerError.Error.Reason}- {response.ServerError.Error.RootCause}");
+            }
         }
     }
 }
