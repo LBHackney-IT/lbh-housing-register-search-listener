@@ -46,6 +46,11 @@ namespace HousingRegisterSearchListener.Functions
 
                 paginationToken = resultsPage.Item2;
 
+                if(paginationToken == null)
+                {
+                    break;
+                }
+
                 resultsPage = await dynamoDBGateway.GetApplicationsPaged(paginationToken, pageSize);
             }
 

@@ -1,5 +1,7 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using HousingRegisterSearchListener.Gateway;
+using HousingRegisterSearchListener.Gateway.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -11,6 +13,8 @@ namespace HousingRegisterApi.V1.Infrastructure
     {
         public static void ConfigureDynamoDB(this IServiceCollection services)
         {
+            services.AddTransient<IDbEntityGateway, DynamoDbEntityGateway>();
+
             _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out var localMode);
 
             if (localMode)
