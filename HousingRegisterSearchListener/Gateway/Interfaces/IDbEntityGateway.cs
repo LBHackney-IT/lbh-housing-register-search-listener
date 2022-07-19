@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2.DataModel;
 using HousingRegisterApi.V1.Domain;
 using HousingRegisterSearchListener.Domain;
 using System;
@@ -10,6 +11,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
     {
         Task<Application> GetEntityAsync(Guid id);
 
-        Task<(List<Application>, string)> GetApplicationsPaged(string paginationToken, int pageSize = 10);
+        public IDynamoDBContext DynamoDbContext { get; }
+
     }
 }
