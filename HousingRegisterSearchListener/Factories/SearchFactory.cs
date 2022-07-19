@@ -26,7 +26,7 @@ namespace HousingRegisterSearchListener.Factories
                 Status = entity.Status,
                 SubmittedAt = entity.SubmittedAt,
                 OtherMembers = GetOtherMembers(entity),
-                HasAssessment = entity.Assessment !=null
+                HasAssessment = entity.Assessment != null
             };
 
             return search;

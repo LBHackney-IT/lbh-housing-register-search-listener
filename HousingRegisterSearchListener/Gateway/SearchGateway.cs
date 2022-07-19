@@ -26,11 +26,11 @@ namespace HousingRegisterSearchListener.Gateway
             _client = new ElasticClient(new Uri(configuration["SEARCHDOMAIN"]));
         }
 
-        public async Task<bool> IndexApplication(Application application)
+        public async Task<bool> IndexApplication(Application application, bool requireAlias = true)
         {
             var searchEntity = application.ToSearch();
 
-            var indexResult = await _client.IndexAsync(searchEntity, i => i.RequireAlias(true).Index(HousingRegisterReadAlias));
+            var indexResult = await _client.IndexAsync(searchEntity, i => i.RequireAlias(requireAlias).Index(HousingRegisterReadAlias));
 
             if (indexResult.IsValid)
             {
@@ -42,9 +42,9 @@ namespace HousingRegisterSearchListener.Gateway
             }
         }
 
-        public async Task<string> CreateMapping(string buildIdentifier = "local")
+        public async Task<string> CreateNewIndex(string uniquePostfix = "local")
         {
-            string indexName = $"housing-register-applications-{buildIdentifier}";
+            string indexName = $"housing-register-applications-{uniquePostfix}";
             //Creates an index in elasticsearch based on a build number
             var createIndexResponse = await _client.Indices.CreateAsync(indexName, c => c
                 .Map<ApplicationSearchEntity>(m => m
@@ -87,7 +87,7 @@ namespace HousingRegisterSearchListener.Gateway
 
         public async Task<List<string>> GetReadAliasTarget()
         {
-            var result = await _client.GetIndicesPointingToAliasAsync(new Names(new[] {HousingRegisterReadAlias}));
+            var result = await _client.GetIndicesPointingToAliasAsync(new Names(new[] { HousingRegisterReadAlias }));
 
             return result.ToList();
         }
