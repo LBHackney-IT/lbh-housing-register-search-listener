@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using HousingRegisterApi.V1.Domain;
+using FluentAssertions.Equivalency;
 
 namespace HousingRegisterSearchListener.Tests.Gateway
 {
@@ -60,7 +61,7 @@ namespace HousingRegisterSearchListener.Tests.Gateway
         private Application ConstructDomainEntity()
         {
             var entity = _fixture.Build<Application>()
-                                 .With(x => x.Id, (Guid?) null)
+                                 .With(x => x.Id, Guid.NewGuid())
                                  .Create();
             return entity;
         }
@@ -73,10 +74,19 @@ namespace HousingRegisterSearchListener.Tests.Gateway
 
             var result = await _classUnderTest.GetEntityAsync(domainEntity.Id).ConfigureAwait(false);
 
-            result.Should().BeEquivalentTo(domainEntity, (e) => e.Excluding(y => y.Id));
-            result.Id.Should().Be(Guid.Empty);
+            result.Should().BeEquivalentTo(domainEntity,ExcludeDates);
+            result.Id.Should().Be(domainEntity.Id);
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {domainEntity.Id}", Times.Once());
+        }
+
+        private EquivalencyAssertionOptions<Application> ExcludeDates(EquivalencyAssertionOptions<Application> arg)
+        {
+            arg.Excluding(x=>x.SubmittedAt);
+            arg.Excluding(x => x.VerifyExpiresAt);
+            arg.Excluding(x => x.CreatedAt);
+
+            return arg;
         }
 
         [Fact]
