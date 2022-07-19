@@ -32,7 +32,8 @@ functions:
     role: lambdaExecutionRole
     vpc:
       securityGroupIds: ${self:custom.securityGroups.${self:provider.stage}}
-      subnetIds: ${self:custom.subnets.${self:provider.stage}}   
+      subnetIds: ${self:custom.subnets.${self:provider.stage}}
+    timeout: 900
     environment:
       ### Re-use the same parameter as used by web api applications
       ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
