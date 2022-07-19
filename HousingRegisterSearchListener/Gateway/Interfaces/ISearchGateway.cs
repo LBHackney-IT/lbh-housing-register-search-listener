@@ -9,12 +9,14 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
 {
     public interface ISearchGateway
     {
-        Task<bool> IndexApplication(Application application);
+        Task<bool> IndexApplication(Application application, bool requireAlias = true);
 
-        Task<string> CreateMapping(string buildIdentifier = "local");
+        Task<string> CreateNewIndex(string buildIdentifier = "local");
 
         Task SetReadAlias(string indexName);
 
         Task<bool> BulkIndexApplications(List<Application> applications);
+
+        Task<List<string>> GetReadAliasTarget();
     }
 }
