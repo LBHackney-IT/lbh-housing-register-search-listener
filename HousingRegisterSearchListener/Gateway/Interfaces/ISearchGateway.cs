@@ -14,5 +14,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
         Task<string> CreateMapping(string buildIdentifier = "local");
 
         Task SetReadAlias(string indexName);
+
+        Task<bool> BulkIndexApplications(List<Application> applications);
     }
 }
