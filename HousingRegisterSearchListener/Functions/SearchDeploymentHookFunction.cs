@@ -37,7 +37,7 @@ namespace HousingRegisterSearchListener.Functions
             //Keep looping until there are no results
             while (resultsPage.Item1.Any())
             {
-                _ = await searchGateway.BulkIndexApplications(resultsPage.Item1);
+                _ = await searchGateway.BulkIndexApplications(resultsPage.Item1, newIndexName);
 
                 documentsIndexed += resultsPage.Item1.Count;
 

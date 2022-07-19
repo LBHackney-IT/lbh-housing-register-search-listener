@@ -109,11 +109,11 @@ namespace HousingRegisterSearchListener.Gateway
             return result.ToList();
         }
 
-        public async Task<bool> BulkIndexApplications(List<Application> applications)
+        public async Task<bool> BulkIndexApplications(List<Application> applications, string indexNameOverride = null)
         {
             var searchEntities = applications.Select(a => a.ToSearch());
 
-            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities);
+            var bulkIndexResult = await _client.IndexManyAsync<ApplicationSearchEntity>(searchEntities, indexNameOverride ?? HousingRegisterReadAlias);
 
             if (bulkIndexResult.IsValid)
             {
