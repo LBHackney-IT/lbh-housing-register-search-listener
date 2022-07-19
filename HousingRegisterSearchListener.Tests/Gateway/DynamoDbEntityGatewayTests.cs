@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using HousingRegisterApi.V1.Domain;
 
 namespace HousingRegisterSearchListener.Tests.Gateway
 {
@@ -51,15 +52,15 @@ namespace HousingRegisterSearchListener.Tests.Gateway
             }
         }
 
-        private async Task InsertDatatoDynamoDB(DomainEntity entity)
+        private async Task InsertDatatoDynamoDB(Application entity)
         {
             await _dbFixture.SaveEntityAsync(entity.ToDatabase()).ConfigureAwait(false);
         }
 
-        private DomainEntity ConstructDomainEntity()
+        private Application ConstructDomainEntity()
         {
-            var entity = _fixture.Build<DomainEntity>()
-                                 .With(x => x.VersionNumber, (int?) null)
+            var entity = _fixture.Build<Application>()
+                                 .With(x => x.Id, (Guid?) null)
                                  .Create();
             return entity;
         }
@@ -72,8 +73,8 @@ namespace HousingRegisterSearchListener.Tests.Gateway
 
             var result = await _classUnderTest.GetEntityAsync(domainEntity.Id).ConfigureAwait(false);
 
-            result.Should().BeEquivalentTo(domainEntity, (e) => e.Excluding(y => y.VersionNumber));
-            result.VersionNumber.Should().Be(0);
+            result.Should().BeEquivalentTo(domainEntity, (e) => e.Excluding(y => y.Id));
+            result.Id.Should().Be(Guid.Empty);
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {domainEntity.Id}", Times.Once());
         }
@@ -87,24 +88,6 @@ namespace HousingRegisterSearchListener.Tests.Gateway
             result.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {id}", Times.Once());
-        }
-
-        [Fact]
-        public async Task SaveEntityAsyncTestUpdatesDatabase()
-        {
-            var domainEntity = ConstructDomainEntity();
-            await InsertDatatoDynamoDB(domainEntity).ConfigureAwait(false);
-
-            domainEntity.Name = "New name";
-            domainEntity.Description = "New description";
-            domainEntity.VersionNumber = 0;
-            await _classUnderTest.SaveEntityAsync(domainEntity).ConfigureAwait(false);
-
-            var updatedInDB = await DynamoDb.LoadAsync<DbEntity>(domainEntity.Id).ConfigureAwait(false);
-            updatedInDB.ToDomain().Should().BeEquivalentTo(domainEntity, (e) => e.Excluding(y => y.VersionNumber));
-            updatedInDB.VersionNumber.Should().Be(domainEntity.VersionNumber + 1);
-
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for id {domainEntity.Id}", Times.Once());
         }
     }
 }

@@ -30,10 +30,9 @@ namespace HousingRegisterSearchListener.UseCase
 
             Application entity = await _gateway.GetEntityAsync(message.EntityId).ConfigureAwait(false);
 
-            if (entity is null) throw new EntityNotFoundException<DomainEntity>(message.EntityId);
+            if (entity is null) throw new EntityNotFoundException<Application>(message.EntityId);
 
-            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
-           
+            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");           
         }
     }
 }

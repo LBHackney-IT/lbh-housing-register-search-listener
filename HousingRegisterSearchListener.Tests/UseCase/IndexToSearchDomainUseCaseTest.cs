@@ -10,6 +10,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.Logging;
+using HousingRegisterApi.V1.Domain;
 
 namespace HousingRegisterSearchListener.Tests.UseCase
 {
@@ -19,7 +20,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
         private readonly Mock<IDbEntityGateway> _mockGateway;
         private readonly Mock<ILogger<IndexToSearchDomainUseCase>> _mockLogger;
         private readonly IndexToSearchDomainUseCase _sut;
-        private readonly DomainEntity _domainEntity;
+        private readonly Application _domainEntity;
 
         private readonly EntityEventSns _message;
 
@@ -33,7 +34,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
             _mockLogger = new Mock<ILogger<IndexToSearchDomainUseCase>>();
             _sut = new IndexToSearchDomainUseCase(_mockGateway.Object, _mockLogger.Object);
 
-            _domainEntity = _fixture.Create<DomainEntity>();
+            _domainEntity = _fixture.Create<Application>();
             _message = CreateMessage(_domainEntity.Id);
 
             _mockGateway.Setup(x => x.GetEntityAsync(_domainEntity.Id)).ReturnsAsync(_domainEntity);
@@ -57,7 +58,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
         [Fact]
         public void ProcessMessageAsyncTestEntityIdNotFoundThrows()
         {
-            _mockGateway.Setup(x => x.GetEntityAsync(_domainEntity.Id)).ReturnsAsync((DomainEntity) null);
+            _mockGateway.Setup(x => x.GetEntityAsync(_domainEntity.Id)).ReturnsAsync((Application) null);
             Func<Task> func = async () => await _sut.ProcessMessageAsync(null).ConfigureAwait(false);
             func.Should().ThrowAsync<EntityNotFoundException<DomainEntity>>();
         }
