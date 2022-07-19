@@ -16,23 +16,33 @@ namespace HousingRegisterSearchListener.UseCase
     {
         private readonly IDbEntityGateway _gateway;
         private readonly ILogger<IndexToSearchDomainUseCase> _logger;
+        private readonly ISearchGateway _searchGateway;
 
-        public IndexToSearchDomainUseCase(IDbEntityGateway gateway, ILogger<IndexToSearchDomainUseCase> logger)
+        public IndexToSearchDomainUseCase(IDbEntityGateway gateway, ILogger<IndexToSearchDomainUseCase> logger, ISearchGateway searchGateway)
         {
             _gateway = gateway;
             _logger = logger;
+            _searchGateway = searchGateway;
         }
 
         [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
+
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             Application entity = await _gateway.GetEntityAsync(message.EntityId).ConfigureAwait(false);
 
+            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
+
             if (entity is null) throw new EntityNotFoundException<Application>(message.EntityId);
 
-            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
+            var success = await _searchGateway.IndexApplication(entity);
+
+            if (success)
+            {
+                _logger.LogInformation($"Successfully indexed ApplicationID {entity.Id}");
+            }
         }
     }
 }
