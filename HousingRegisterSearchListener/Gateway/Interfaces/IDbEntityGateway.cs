@@ -1,3 +1,4 @@
+using HousingRegisterApi.V1.Domain;
 using HousingRegisterSearchListener.Domain;
 using System;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
 {
     public interface IDbEntityGateway
     {
-        Task<DomainEntity> GetEntityAsync(Guid id);
-        Task SaveEntityAsync(DomainEntity entity);
+        Task<Application> GetEntityAsync(Guid id);
     }
 }

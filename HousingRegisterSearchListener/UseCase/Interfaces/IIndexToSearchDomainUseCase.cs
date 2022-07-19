@@ -1,5 +1,5 @@
 namespace HousingRegisterSearchListener.UseCase.Interfaces
 {
-    public interface IDoSomethingUseCase : IMessageProcessing
+    public interface IIndexToSearchDomainUseCase : IMessageProcessing
     { }
 }

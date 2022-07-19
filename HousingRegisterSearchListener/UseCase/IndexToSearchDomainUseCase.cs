@@ -8,10 +8,11 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using HousingRegisterApi.V1.Domain;
 
 namespace HousingRegisterSearchListener.UseCase
 {
-    public class IndexToSearchDomainUseCase : IDoSomethingUseCase
+    public class IndexToSearchDomainUseCase : IIndexToSearchDomainUseCase
     {
         private readonly IDbEntityGateway _gateway;
         private readonly ILogger<IndexToSearchDomainUseCase> _logger;
@@ -23,24 +24,16 @@ namespace HousingRegisterSearchListener.UseCase
         }
 
         [LogCall]
-        public Task ProcessMessageAsync(EntityEventSns message)
+        public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            //// TODO - Implement use case logic
-            //DomainEntity entity = await _gateway.GetEntityAsync(message.EntityId).ConfigureAwait(false);
-            //if (entity is null) throw new EntityNotFoundException<DomainEntity>(message.EntityId);
+            Application entity = await _gateway.GetEntityAsync(message.EntityId).ConfigureAwait(false);
 
-            //entity.Description = "Updated";
+            if (entity is null) throw new EntityNotFoundException<DomainEntity>(message.EntityId);
 
-            //// Save updated entity
-            //await _gateway.SaveEntityAsync(entity).ConfigureAwait(false);
-
-            string objectData = JsonConvert.SerializeObject(message.EventData.NewData);
-
-            _logger.LogInformation(objectData);
-
-            return Task.CompletedTask;
+            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
+           
         }
     }
 }

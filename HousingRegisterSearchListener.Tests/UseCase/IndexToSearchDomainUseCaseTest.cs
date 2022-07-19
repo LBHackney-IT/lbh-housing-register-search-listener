@@ -39,7 +39,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
             _mockGateway.Setup(x => x.GetEntityAsync(_domainEntity.Id)).ReturnsAsync(_domainEntity);
         }
 
-        private EntityEventSns CreateMessage(Guid id, string eventType = EventTypes.DoSomethingEvent)
+        private EntityEventSns CreateMessage(Guid id, string eventType = EventTypes.HousingApplicationUpdatedEvent)
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EntityId, id)
