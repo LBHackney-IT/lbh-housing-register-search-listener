@@ -31,7 +31,7 @@ namespace HousingRegisterSearchListener.UseCase
 
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            Application entity = await _gateway.GetEntityAsync(message.EntityId).ConfigureAwait(false);
+            Application entity = await _gateway.GetEntityAsync(message.EntityId);
 
             _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
 
