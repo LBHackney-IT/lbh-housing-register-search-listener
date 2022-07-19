@@ -32,7 +32,7 @@ namespace HousingRegisterSearchListener.UseCase
 
             if (entity is null) throw new EntityNotFoundException<Application>(message.EntityId);
 
-            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");           
+            _logger.LogInformation($"Received notification of change to applicationID {entity.Id}");
         }
     }
 }
