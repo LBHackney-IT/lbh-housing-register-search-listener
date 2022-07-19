@@ -18,6 +18,7 @@ namespace HousingRegisterSearchListener.Tests.UseCase
     public class IndexToSearchDomainUseCaseTest
     {
         private readonly Mock<IDbEntityGateway> _mockGateway;
+        private readonly Mock<ISearchGateway> _mockSearchGateway;
         private readonly Mock<ILogger<IndexToSearchDomainUseCase>> _mockLogger;
         private readonly IndexToSearchDomainUseCase _sut;
         private readonly Application _domainEntity;
@@ -31,8 +32,9 @@ namespace HousingRegisterSearchListener.Tests.UseCase
             _fixture = new Fixture();
 
             _mockGateway = new Mock<IDbEntityGateway>();
+            _mockSearchGateway = new Mock<ISearchGateway>();
             _mockLogger = new Mock<ILogger<IndexToSearchDomainUseCase>>();
-            _sut = new IndexToSearchDomainUseCase(_mockGateway.Object, _mockLogger.Object);
+            _sut = new IndexToSearchDomainUseCase(_mockGateway.Object, _mockLogger.Object, _mockSearchGateway.Object);
 
             _domainEntity = _fixture.Create<Application>();
             _message = CreateMessage(_domainEntity.Id);
