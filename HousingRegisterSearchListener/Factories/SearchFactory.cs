@@ -16,17 +16,17 @@ namespace HousingRegisterSearchListener.Factories
                 ApplicationId = entity.Id,
                 AssignedTo = entity.AssignedTo,
                 CreatedAt = entity.CreatedAt,
-                DateOfBirth = entity.MainApplicant.Person.DateOfBirth,
-                Title = entity.MainApplicant.Person.Title,
-                FirstName = entity.MainApplicant.Person.FirstName,
-                MiddleName = entity.MainApplicant.Person.MiddleName,
-                Surname = entity.MainApplicant.Person.Surname,
-                NationalInsuranceNumber = entity.MainApplicant.Person.NationalInsuranceNumber,
-                SensitiveData = entity.SensitiveData,
-                Status = entity.Status,
-                SubmittedAt = entity.SubmittedAt,
+                DateOfBirth = entity?.MainApplicant?.Person?.DateOfBirth ?? DateTime.MinValue,
+                Title = entity?.MainApplicant?.Person?.Title,
+                FirstName = entity?.MainApplicant?.Person?.FirstName,
+                MiddleName = entity?.MainApplicant?.Person?.MiddleName,
+                Surname = entity?.MainApplicant?.Person?.Surname,
+                NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber,
+                SensitiveData = entity?.SensitiveData ?? false,
+                Status = entity?.Status,
+                SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
                 OtherMembers = GetOtherMembers(entity),
-                HasAssessment = entity.Assessment != null
+                HasAssessment = entity?.Assessment != null
             };
 
             return search;
@@ -40,12 +40,12 @@ namespace HousingRegisterSearchListener.Factories
             {
                 ApplicationOtherMembersSearchEntity otherMemberEntity = new ApplicationOtherMembersSearchEntity
                 {
-                    DateOfBirth = otherMember.Person.DateOfBirth,
-                    FirstName = otherMember.Person.FirstName,
-                    Id = otherMember.Person.Id,
-                    MiddleName = otherMember.Person.MiddleName,
-                    NationalInsuranceNumber = otherMember.Person.NationalInsuranceNumber,
-                    Surname = otherMember.Person.Surname
+                    DateOfBirth = otherMember?.Person?.DateOfBirth ?? DateTime.MinValue,
+                    FirstName = otherMember?.Person?.FirstName,
+                    Id = otherMember.Person?.Id ?? Guid.Empty,
+                    MiddleName = otherMember?.Person?.MiddleName,
+                    NationalInsuranceNumber = otherMember?.Person?.NationalInsuranceNumber,
+                    Surname = otherMember?.Person?.Surname
                 };
 
                 result.Add(otherMemberEntity);
