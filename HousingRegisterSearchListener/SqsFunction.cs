@@ -42,7 +42,7 @@ namespace HousingRegisterSearchListener
             services.ConfigureDynamoDB();
 
             services.AddHttpClient();
-            services.AddScoped<IDoSomethingUseCase, IndexToSearchDomainUseCase>();
+            services.AddScoped<IIndexToSearchDomainUseCase, IndexToSearchDomainUseCase>();
 
             services.AddScoped<IDbEntityGateway, DynamoDbEntityGateway>();
 
@@ -86,12 +86,11 @@ namespace HousingRegisterSearchListener
                     IMessageProcessing processor = null;
                     switch (entityEvent.EventType)
                     {
-                        case EventTypes.DoSomethingEvent:
+                        case EventTypes.HousingApplicationUpdatedEvent:
                             {
-                                processor = ServiceProvider.GetService<IDoSomethingUseCase>();
+                                processor = ServiceProvider.GetService<IIndexToSearchDomainUseCase>();
                                 break;
                             }
-                        // TODO - Implement other message types here...
                         default:
                             throw new ArgumentException($"Unknown event type: {entityEvent.EventType} on message id: {message.MessageId}");
                     }

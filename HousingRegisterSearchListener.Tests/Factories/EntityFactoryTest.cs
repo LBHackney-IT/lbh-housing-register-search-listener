@@ -4,6 +4,8 @@ using HousingRegisterSearchListener.Factories;
 using HousingRegisterSearchListener.Infrastructure;
 using FluentAssertions;
 using Xunit;
+using HousingRegisterApi.V1.Domain;
+using HousingRegisterApi.V1.Infrastructure;
 
 namespace HousingRegisterSearchListener.Tests.Factories
 {
@@ -14,7 +16,7 @@ namespace HousingRegisterSearchListener.Tests.Factories
         [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
-            var databaseEntity = _fixture.Create<DbEntity>();
+            var databaseEntity = _fixture.Create<ApplicationDbEntity>();
             var entity = databaseEntity.ToDomain();
 
             databaseEntity.Should().BeEquivalentTo(entity);
@@ -23,7 +25,7 @@ namespace HousingRegisterSearchListener.Tests.Factories
         [Fact]
         public void CanMapADomainEntityToADatabaseObject()
         {
-            var entity = _fixture.Create<DomainEntity>();
+            var entity = _fixture.Create<Application>();
             var databaseEntity = entity.ToDatabase();
 
             databaseEntity.Should().BeEquivalentTo(entity);
