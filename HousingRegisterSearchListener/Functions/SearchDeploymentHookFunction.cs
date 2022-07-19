@@ -46,7 +46,7 @@ namespace HousingRegisterSearchListener.Functions
 
                 paginationToken = resultsPage.Item2;
 
-                if(paginationToken == null)
+                if (paginationToken == null)
                 {
                     break;
                 }
