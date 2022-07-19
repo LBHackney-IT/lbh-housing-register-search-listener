@@ -20,5 +20,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
         Task<List<string>> GetReadAliasTarget();
 
         Task SetRecommendedServerSettings();
+
+        Task DropIndex(string indexName);
     }
 }

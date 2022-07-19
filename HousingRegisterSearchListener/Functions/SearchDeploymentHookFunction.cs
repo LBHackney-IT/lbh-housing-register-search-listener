@@ -26,6 +26,9 @@ namespace HousingRegisterSearchListener.Functions
             var searchGateway = ServiceProvider.GetService<ISearchGateway>();
             int documentsIndexed = 0;
 
+            //Get the name of the current index
+            var oldIndexNames = await searchGateway.GetReadAliasTarget();
+
             //Ensure the cluster setting to not auto create indices is set
             await searchGateway.SetRecommendedServerSettings();
 
@@ -44,15 +47,22 @@ namespace HousingRegisterSearchListener.Functions
             //Keep looping until there are no results
             while (resultsPage.Any())
             {
-                _ = await searchGateway.BulkIndexApplications(resultsPage.Select(r=>r.ToDomain()).ToList(), newIndexName);
+                _ = await searchGateway.BulkIndexApplications(resultsPage.Select(r => r.ToDomain()).ToList(), newIndexName);
 
-                documentsIndexed += resultsPage.Count;            
+                documentsIndexed += resultsPage.Count;
 
-                resultsPage =  await scanHandle.GetNextSetAsync();
+                resultsPage = await scanHandle.GetNextSetAsync();
             }
 
             //Move alias target to new index
             await searchGateway.SetReadAlias(newIndexName);
+
+            //Remove the old indices that the alias was pointing to
+
+            foreach (var oldIndexName in oldIndexNames)
+            {
+                await searchGateway.DropIndex(oldIndexName);
+            }
 
             return $"Indexed {documentsIndexed} documents";
         }

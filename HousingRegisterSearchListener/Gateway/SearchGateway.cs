@@ -138,5 +138,15 @@ namespace HousingRegisterSearchListener.Gateway
                 throw response.OriginalException ?? new Exception($"Server error status code {response.ServerError.Status} - {response.ServerError.Error.Type} - {response.ServerError.Error.Reason}- {response.ServerError.Error.RootCause}");
             }
         }
+
+        public async Task DropIndex(string indexName)
+        {
+            var response = await _client.Indices.DeleteAsync(indexName);
+
+            if (!response.Acknowledged)
+            {
+                throw response.OriginalException ?? new Exception($"Server error status code {response.ServerError.Status} - {response.ServerError.Error.Type} - {response.ServerError.Error.Reason}- {response.ServerError.Error.RootCause}");
+            }
+        }
     }
 }
