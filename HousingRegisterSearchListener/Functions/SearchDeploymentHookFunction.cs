@@ -47,11 +47,11 @@ namespace HousingRegisterSearchListener.Functions
             //Keep looping until there are no results
             while (resultsPage.Any())
             {
-                _ = await searchGateway.BulkIndexApplications(resultsPage.Select(r=>r.ToDomain()).ToList(), newIndexName);
+                _ = await searchGateway.BulkIndexApplications(resultsPage.Select(r => r.ToDomain()).ToList(), newIndexName);
 
-                documentsIndexed += resultsPage.Count;            
+                documentsIndexed += resultsPage.Count;
 
-                resultsPage =  await scanHandle.GetNextSetAsync();
+                resultsPage = await scanHandle.GetNextSetAsync();
             }
 
             //Move alias target to new index
