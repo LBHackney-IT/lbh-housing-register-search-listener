@@ -26,8 +26,17 @@ functions:
       SEARCHDOMAIN: ${ssm:/housing-${self:provider.stage}/${self:provider.stage}/elasticsearch-domain}
     events:
       - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn}
-      
-      
+  SearchDeploymentHookFunction:
+    name: ${self:service}-${self:provider.stage}
+    handler: HousingRegisterSearchListener::HousingRegisterSearchListener.Functions.SearchDeploymentHookFunction::Handle
+    role: lambdaExecutionRole
+    vpc:
+      securityGroupIds: ${self:custom.securityGroups.${self:provider.stage}}
+      subnetIds: ${self:custom.subnets.${self:provider.stage}}   
+    environment:
+      ### Re-use the same parameter as used by web api applications
+      ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
+      SEARCHDOMAIN: ${ssm:/housing-${self:provider.stage}/${self:provider.stage}/elasticsearch-domain}
 resources:
   Resources:
     lambdaExecutionRole:
