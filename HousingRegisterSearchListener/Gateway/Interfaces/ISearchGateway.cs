@@ -18,5 +18,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
         Task<bool> BulkIndexApplications(List<Application> applications, string indexNameOverride = null);
 
         Task<List<string>> GetReadAliasTarget();
+
+        Task SetRecommendedServerSettings();
     }
 }

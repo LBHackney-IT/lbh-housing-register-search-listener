@@ -89,7 +89,7 @@ namespace HousingRegisterSearchListener.Gateway
             //Remove any existing alias targets
             foreach (var aliasTarget in currentReadAliasTargets)
             {
-                aliasActions.Add(new AliasRemoveAction { Remove = new AliasRemoveOperation {Index = aliasTarget, Alias = HousingRegisterReadAlias } });
+                aliasActions.Add(new AliasRemoveAction { Remove = new AliasRemoveOperation { Index = aliasTarget, Alias = HousingRegisterReadAlias } });
             }
 
             //Add the new alias target
@@ -98,7 +98,7 @@ namespace HousingRegisterSearchListener.Gateway
             //Apply add/removes transactionally
             await _client.Indices.BulkAliasAsync(new BulkAliasRequest
             {
-                Actions = aliasActions                
+                Actions = aliasActions
             });
         }
 
@@ -124,6 +124,19 @@ namespace HousingRegisterSearchListener.Gateway
                 throw bulkIndexResult.OriginalException ?? new Exception($"Server error status code {bulkIndexResult.ServerError.Status} - {bulkIndexResult.ItemsWithErrors.Count()} items had errors - {bulkIndexResult.ServerError.Error.Type} - {bulkIndexResult.ServerError.Error.Reason}- {bulkIndexResult.ServerError.Error.RootCause}");
             }
 
+        }
+
+        public async Task SetRecommendedServerSettings()
+        {
+            var response = await _client.Cluster.PutSettingsAsync(new ClusterPutSettingsRequest
+            {
+                Persistent = new Dictionary<string, object> { { "action.auto_create_index", false } }
+            });
+
+            if (!response.Acknowledged)
+            {
+                throw response.OriginalException ?? new Exception($"Server error status code {response.ServerError.Status} - {response.ServerError.Error.Type} - {response.ServerError.Error.Reason}- {response.ServerError.Error.RootCause}");
+            }
         }
     }
 }
