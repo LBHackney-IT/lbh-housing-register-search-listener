@@ -27,7 +27,7 @@ functions:
     events:
       - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn}
   SearchDeploymentHookFunction:
-    name: ${self:service}-${self:provider.stage}
+    name: ${self:service}-${self:provider.stage}-deploymenthook
     handler: HousingRegisterSearchListener::HousingRegisterSearchListener.Functions.SearchDeploymentHookFunction::Handle
     role: lambdaExecutionRole
     vpc:
