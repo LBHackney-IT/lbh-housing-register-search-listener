@@ -85,6 +85,13 @@ namespace HousingRegisterSearchListener.Gateway
             await _client.Indices.PutAliasAsync(new PutAliasRequest(Indices.Parse(indexName), new Name(HousingRegisterReadAlias)));
         }
 
+        public async Task<List<string>> GetReadAliasTarget()
+        {
+            var result = await _client.GetIndicesPointingToAliasAsync(new Names(new[] {HousingRegisterReadAlias}));
+
+            return result.ToList();
+        }
+
         public async Task<bool> BulkIndexApplications(List<Application> applications)
         {
             var searchEntities = applications.Select(a => a.ToSearch());

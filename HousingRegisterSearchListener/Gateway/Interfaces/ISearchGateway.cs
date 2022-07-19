@@ -16,5 +16,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
         Task SetReadAlias(string indexName);
 
         Task<bool> BulkIndexApplications(List<Application> applications);
+
+        Task<List<string>> GetReadAliasTarget();
     }
 }
