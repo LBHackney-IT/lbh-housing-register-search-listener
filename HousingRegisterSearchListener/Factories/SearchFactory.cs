@@ -25,7 +25,8 @@ namespace HousingRegisterSearchListener.Factories
                 SensitiveData = entity.SensitiveData,
                 Status = entity.Status,
                 SubmittedAt = entity.SubmittedAt,
-                OtherMembers = GetOtherMembers(entity)
+                OtherMembers = GetOtherMembers(entity),
+                HasAssessment = entity.Assessment !=null
             };
 
             return search;
