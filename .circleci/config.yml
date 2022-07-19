@@ -85,6 +85,11 @@ commands:
           command: |
             cd ./HousingRegisterSearchListener/
             sls deploy --stage <<parameters.stage>> --conceal
+      - run:
+          name: Invoke elasticsearch deploy hook function
+          command: |
+            cd ./HousingRegisterSearchListener/
+            sls invoke --stage <<parameters.stage>> --conceal --function SearchDeploymentHookFunction --data "${CIRCLE_BUILD_NUM}"
 
 jobs:
   check-code-formatting:
