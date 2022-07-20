@@ -25,6 +25,8 @@ namespace HousingRegisterSearchListener.Gateway
         {
             _logger = logger;
             _client = new ElasticClient(new Uri(configuration["SEARCHDOMAIN"]));
+
+            _client.ConnectionSettings.IdProperties.Add(typeof(ApplicationSearchEntity), "ApplicationId");
         }
 
         public async Task<bool> IndexApplication(Application application, bool requireAlias = true)
