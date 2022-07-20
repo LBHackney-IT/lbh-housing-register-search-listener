@@ -36,6 +36,6 @@ namespace HousingRegisterSearchListener.Domain
 
         public string Reference { get; set; }
 
-        public int BiddingNumber { get; set; }
+        public int? BiddingNumber { get; set; }
     }
 }

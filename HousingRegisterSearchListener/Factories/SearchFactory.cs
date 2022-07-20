@@ -11,6 +11,7 @@ namespace HousingRegisterSearchListener.Factories
     {
         public static ApplicationSearchEntity ToSearch(this Application entity)
         {
+            int biddingNumber = Convert.ToInt32(entity.Assessment?.BiddingNumber);
             var search = new ApplicationSearchEntity
             {
                 ApplicationId = entity.Id,
@@ -26,7 +27,9 @@ namespace HousingRegisterSearchListener.Factories
                 Status = entity?.Status,
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
                 OtherMembers = GetOtherMembers(entity),
-                HasAssessment = entity?.Assessment != null
+                HasAssessment = entity?.Assessment != null,
+                BiddingNumber = biddingNumber == 0 ? (int?) null : biddingNumber,
+                Reference = entity.Reference
             };
 
             return search;
