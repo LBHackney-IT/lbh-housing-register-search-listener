@@ -33,5 +33,9 @@ namespace HousingRegisterSearchListener.Domain
         public List<ApplicationOtherMembersSearchEntity> OtherMembers { get; set; }
 
         public bool HasAssessment { get; set; }
+
+        public string Reference { get; set; }
+
+        public int BiddingNumber { get; set; }
     }
 }
