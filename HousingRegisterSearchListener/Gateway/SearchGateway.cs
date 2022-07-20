@@ -57,9 +57,11 @@ namespace HousingRegisterSearchListener.Gateway
                         .Text(p => p.Name(nn => nn.MiddleName))
                         .Text(p => p.Name(nn => nn.Surname))
                         .Text(p => p.Name(nn => nn.NationalInsuranceNumber))
+                        .Keyword(p => p.Name(nn => nn.Reference))
                         .Keyword(p => p.Name(nn => nn.ApplicationId))
                         .Keyword(p => p.Name(nn => nn.AssignedTo))
                         .Keyword(p => p.Name(nn => nn.Status))
+                        .Number(p => p.Name(nn => nn.BiddingNumber).Type(NumberType.Integer))
                         .Nested<ApplicationOtherMembersSearchEntity>(n => n.Name(nn => nn.OtherMembers)
                             .Properties(ips => ips
                                 .Text(ip => ip.Name(inn => inn.FirstName))
