@@ -28,7 +28,7 @@ namespace HousingRegisterSearchListener.Factories
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
                 OtherMembers = GetOtherMembers(entity),
                 HasAssessment = entity?.Assessment != null,
-                BiddingNumber = biddingNumber == 0 ? (int?)null : biddingNumber,
+                BiddingNumber = biddingNumber == 0 ? (int?) null : biddingNumber,
                 Reference = entity.Reference
             };
 
