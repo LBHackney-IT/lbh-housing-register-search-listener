@@ -11,6 +11,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using HousingRegisterSearchListener.Gateway.Interfaces;
+using HousingRegisterSearchListener.Gateway;
+using HousingRegisterApi.V1.Infrastructure;
 
 namespace HousingRegisterSearchListener
 {
@@ -38,13 +41,14 @@ namespace HousingRegisterSearchListener
             Configure(builder);
             Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton<ISearchGateway, SearchGateway>();
 
             services.ConfigureLambdaLogging(Configuration);
             services.AddLogCallAspect();
+            services.ConfigureDynamoDB();
 
             ConfigureServices(services);
 
-            // TODO - Remove if not using DynamoDb
             if (Configuration.GetValue<bool>("DynamoDb_LocalMode"))
                 AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
 

@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
@@ -18,9 +19,14 @@ namespace HousingRegisterSearchListener.Tests
         {
             // Define all tables required by the application here.
             // The definition should be exactly the same as that used in real deployed environments
-            new TableDef { Name = "SomeTable", KeyName = "id", KeyType = ScalarAttributeType.S }
+            new TableDef {
+                Name = "HousingRegister",
+                KeyName = "id",
+                KeyType = ScalarAttributeType.S }
         };
         public IDynamoDbFixture DynamoDbFixture { get; private set; }
+        public IAmazonDynamoDB DynamoDb { get; private set; }
+
 
         private readonly IHost _host;
 
@@ -75,6 +81,48 @@ namespace HousingRegisterSearchListener.Tests
 
                DynamoDbFixture = serviceProvider.GetRequiredService<IDynamoDbFixture>();
                DynamoDbFixture.EnsureTablesExist(_tables);
+               DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
+
+               CreateDynamoDbTable();
            });
+
+        private void CreateDynamoDbTable()
+        {
+            var housingRegIndex = new GlobalSecondaryIndex
+            {
+                IndexName = "HousingRegIndex",
+                ProvisionedThroughput = new ProvisionedThroughput
+                {
+                    ReadCapacityUnits = (long) 10,
+                    WriteCapacityUnits = (long) 1
+                },
+                Projection = new Projection { ProjectionType = "ALL" }
+            };
+
+            foreach (var table in _tables)
+            {
+                try
+                {
+                    /*var indexKeySchema = new List<KeySchemaElement> {
+                        {new KeySchemaElement { AttributeName = "status", KeyType = "HASH"}},  //Partition key
+                        {new KeySchemaElement{ AttributeName = "submittedAt", KeyType = "RANGE"}}  //Sort key
+                    };*/
+
+                    //housingRegIndex.KeySchema = indexKeySchema;
+
+                    var request = new CreateTableRequest(table.Name,
+                        new List<KeySchemaElement> { new KeySchemaElement(table.KeyName, KeyType.HASH) },
+                        new List<AttributeDefinition> { new AttributeDefinition(table.KeyName, table.KeyType) },
+                        new ProvisionedThroughput(3, 3)
+                        );
+                    //request.GlobalSecondaryIndexes.Add(housingRegIndex);
+                    _ = DynamoDb.CreateTableAsync(request).GetAwaiter().GetResult();
+                }
+                catch (ResourceInUseException)
+                {
+                    // It already exists :-)
+                }
+            }
+        }
     }
 }

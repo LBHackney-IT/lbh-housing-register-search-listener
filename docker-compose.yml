@@ -15,6 +15,7 @@ services:
       # Alter if not using DynamoDb
      - DynamoDb_LocalMode=true
      - DynamoDb_LocalServiceUrl=http://dynamodb-database:8000
+     - SEARCHDOMAIN=http://test-elasticsearch:9200
      - AWS_REGION=eu-west-2
      - AWS_ACCESS_KEY_ID=local
      - AWS_SECRET_ACCESS_KEY=local
@@ -44,4 +45,40 @@ services:
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
-      
+
+  test-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: test-elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - esdata-test:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.3
+    container_name: kibana
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    depends_on:
+      - test-elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://test-elasticsearch:9200
+      SERVER_HOST: 0.0.0.0
+
+volumes:
+  esdata-test:
+      driver: local
+
+networks:
+  elastic:
+    driver: bridge

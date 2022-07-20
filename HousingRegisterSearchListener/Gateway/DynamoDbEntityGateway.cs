@@ -7,6 +7,11 @@ using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using HousingRegisterApi.V1.Domain;
+using HousingRegisterApi.V1.Infrastructure;
+using Amazon.DynamoDBv2.DocumentModel;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HousingRegisterSearchListener.Gateway
 {
@@ -15,6 +20,8 @@ namespace HousingRegisterSearchListener.Gateway
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<DynamoDbEntityGateway> _logger;
 
+        public IDynamoDBContext DynamoDbContext => _dynamoDbContext;
+
         public DynamoDbEntityGateway(IDynamoDBContext dynamoDbContext, ILogger<DynamoDbEntityGateway> logger)
         {
             _logger = logger;
@@ -22,18 +29,12 @@ namespace HousingRegisterSearchListener.Gateway
         }
 
         [LogCall]
-        public async Task<DomainEntity> GetEntityAsync(Guid id)
+        public async Task<Application> GetEntityAsync(Guid id)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {id}");
-            var dbEntity = await _dynamoDbContext.LoadAsync<DbEntity>(id).ConfigureAwait(false);
+            var dbEntity = await DynamoDbContext.LoadAsync<ApplicationDbEntity>(id).ConfigureAwait(false);
             return dbEntity?.ToDomain();
         }
 
-        [LogCall]
-        public async Task SaveEntityAsync(DomainEntity entity)
-        {
-            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for id {entity.Id}");
-            await _dynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-        }
     }
 }
