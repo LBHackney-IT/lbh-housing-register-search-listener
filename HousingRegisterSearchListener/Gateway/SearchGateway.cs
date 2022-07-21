@@ -57,7 +57,7 @@ namespace HousingRegisterSearchListener.Gateway
                         .Text(p => p.Name(nn => nn.MiddleName))
                         .Text(p => p.Name(nn => nn.Surname))
                         .Text(p => p.Name(nn => nn.NationalInsuranceNumber))
-                        .Keyword(p => p.Name(nn => nn.Reference))
+                        .Text(p => p.Name(nn => nn.Reference))
                         .Keyword(p => p.Name(nn => nn.ApplicationId))
                         .Keyword(p => p.Name(nn => nn.AssignedTo))
                         .Keyword(p => p.Name(nn => nn.Status))

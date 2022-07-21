@@ -24,7 +24,7 @@ namespace HousingRegisterSearchListener.Factories
                 Surname = entity?.MainApplicant?.Person?.Surname,
                 NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber,
                 SensitiveData = entity?.SensitiveData ?? false,
-                Status = entity?.Status,
+                Status = EnsureConsistentEnumValue(entity?.Status),
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
                 OtherMembers = GetOtherMembers(entity),
                 HasAssessment = entity?.Assessment != null,
@@ -33,6 +33,25 @@ namespace HousingRegisterSearchListener.Factories
             };
 
             return search;
+        }
+
+        private static string EnsureConsistentEnumValue(string status)
+        {
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status.Length > 1)
+                {
+                    return char.ToUpper(status[0]) + status.Substring(1);
+                }
+                else
+                {
+                    return status;
+                }
+            }
+            else
+            {
+                return status;
+            }
         }
 
         private static List<ApplicationOtherMembersSearchEntity> GetOtherMembers(Application entity)
