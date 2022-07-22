@@ -22,7 +22,7 @@ namespace HousingRegisterSearchListener.Factories
                 FirstName = entity?.MainApplicant?.Person?.FirstName,
                 MiddleName = entity?.MainApplicant?.Person?.MiddleName,
                 Surname = entity?.MainApplicant?.Person?.Surname,
-                NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber,
+                NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber?.Replace(" ", "").Trim(),
                 SensitiveData = entity?.SensitiveData ?? false,
                 Status = EnsureConsistentEnumValue(entity?.Status),
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
