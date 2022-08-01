@@ -13,5 +13,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
 
         public IDynamoDBContext DynamoDbContext { get; }
 
+        Task SetReferenceNumber(Guid id, string newReferenceNumber);
+
     }
 }
