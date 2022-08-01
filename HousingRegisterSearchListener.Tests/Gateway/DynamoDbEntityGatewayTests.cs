@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Xunit;
 using HousingRegisterApi.V1.Domain;
 using FluentAssertions.Equivalency;
+using Amazon.DynamoDBv2;
 
 namespace HousingRegisterSearchListener.Tests.Gateway
 {
@@ -26,13 +27,15 @@ namespace HousingRegisterSearchListener.Tests.Gateway
         private readonly DynamoDbEntityGateway _classUnderTest;
         private readonly IDynamoDbFixture _dbFixture;
         private IDynamoDBContext DynamoDb => _dbFixture.DynamoDbContext;
+        private Mock<IAmazonDynamoDB> _dynamoDbClient;
         private readonly List<Action> _cleanup = new List<Action>();
 
         public DynamoDbEntityGatewayTests(MockApplicationFactory appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
             _logger = new Mock<ILogger<DynamoDbEntityGateway>>();
-            _classUnderTest = new DynamoDbEntityGateway(DynamoDb, _logger.Object);
+            _dynamoDbClient = new Mock<IAmazonDynamoDB>();
+            _classUnderTest = new DynamoDbEntityGateway(DynamoDb, _logger.Object, _dynamoDbClient.Object);
         }
 
         public void Dispose()

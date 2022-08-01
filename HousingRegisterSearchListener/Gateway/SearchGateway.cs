@@ -60,7 +60,7 @@ namespace HousingRegisterSearchListener.Gateway
                         .Text(p => p.Name(nn => nn.EmailAddress))
                         .Text(p => p.Name(nn => nn.PhoneNumber))
                         .Text(p => p.Name(nn => nn.Reference)
-                        .Fields(ff=>ff.Keyword(k=>k.Name("keyword"))))
+                        .Fields(ff => ff.Keyword(k => k.Name("keyword"))))
                         .Keyword(p => p.Name(nn => nn.ApplicationId))
                         .Keyword(p => p.Name(nn => nn.AssignedTo))
                         .Keyword(p => p.Name(nn => nn.Status))
