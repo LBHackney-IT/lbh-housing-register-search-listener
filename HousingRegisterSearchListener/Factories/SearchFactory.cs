@@ -22,7 +22,9 @@ namespace HousingRegisterSearchListener.Factories
                 FirstName = entity?.MainApplicant?.Person?.FirstName,
                 MiddleName = entity?.MainApplicant?.Person?.MiddleName,
                 Surname = entity?.MainApplicant?.Person?.Surname,
-                NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber,
+                NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber?.Replace(" ", ""),
+                EmailAddress = entity?.MainApplicant?.ContactInformation?.EmailAddress,
+                PhoneNumber = entity?.MainApplicant?.ContactInformation?.PhoneNumber,
                 SensitiveData = entity?.SensitiveData ?? false,
                 Status = EnsureConsistentEnumValue(entity?.Status),
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
@@ -66,7 +68,7 @@ namespace HousingRegisterSearchListener.Factories
                     FirstName = otherMember?.Person?.FirstName,
                     Id = otherMember.Person?.Id ?? Guid.Empty,
                     MiddleName = otherMember?.Person?.MiddleName,
-                    NationalInsuranceNumber = otherMember?.Person?.NationalInsuranceNumber,
+                    NationalInsuranceNumber = otherMember?.Person?.NationalInsuranceNumber?.Replace(" ", ""),
                     Surname = otherMember?.Person?.Surname
                 };
 
