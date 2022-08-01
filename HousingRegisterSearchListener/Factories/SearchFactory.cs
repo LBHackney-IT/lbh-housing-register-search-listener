@@ -23,6 +23,8 @@ namespace HousingRegisterSearchListener.Factories
                 MiddleName = entity?.MainApplicant?.Person?.MiddleName,
                 Surname = entity?.MainApplicant?.Person?.Surname,
                 NationalInsuranceNumber = entity?.MainApplicant?.Person?.NationalInsuranceNumber,
+                EmailAddress = entity?.MainApplicant?.ContactInformation?.EmailAddress,
+                PhoneNumber = entity?.MainApplicant?.ContactInformation?.PhoneNumber,
                 SensitiveData = entity?.SensitiveData ?? false,
                 Status = EnsureConsistentEnumValue(entity?.Status),
                 SubmittedAt = entity?.SubmittedAt ?? DateTime.MinValue,
