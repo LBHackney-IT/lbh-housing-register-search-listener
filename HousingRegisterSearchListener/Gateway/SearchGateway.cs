@@ -193,6 +193,7 @@ namespace HousingRegisterSearchListener.Gateway
         public async Task<long> GetHighestBiddingNumber()
         {
             var aggQuery = await _client.SearchAsync<ApplicationSearchEntity>(s => s
+            .Index(HousingRegisterReadAlias)
             .Aggregations(ag => ag.Max("maxBiddingNumber", agg => agg.Field(f => f.BiddingNumber)))).ConfigureAwait(false);
 
             var doubleResult = aggQuery.Aggregations.Max("maxBiddingNumber").Value;
