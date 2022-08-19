@@ -77,7 +77,7 @@ namespace HousingRegisterSearchListener.Gateway
                     TableName = HousingRegisterTableName,
                     Item = new Dictionary<string, AttributeValue> {
                     { "id", new AttributeValue("HousingRegister#BiddingNumberAtomicCounter") },
-                    { "lastIssuedBiddingNumber", new AttributeValue(lastIssuedBiddingNumber.ToString()) }
+                    { "lastIssuedBiddingNumber", new AttributeValue{ N = lastIssuedBiddingNumber.ToString() } }
                 },
                     ConditionExpression = "attribute_not_exists(id)"
                 }).ConfigureAwait(false);
