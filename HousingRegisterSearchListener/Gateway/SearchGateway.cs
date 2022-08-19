@@ -189,5 +189,16 @@ namespace HousingRegisterSearchListener.Gateway
                 throw response.OriginalException ?? new Exception($"Server error status code {response.ServerError.Status} - {response.ServerError.Error.Type} - {response.ServerError.Error.Reason}- {response.ServerError.Error.RootCause}");
             }
         }
+
+        public async Task<long> GetHighestBiddingNumber()
+        {
+            var aggQuery = await _client.SearchAsync<ApplicationSearchEntity>(s => s
+            .Aggregations(ag => ag.Max("maxBiddingNumber", agg => agg.Field(f => f.BiddingNumber)))).ConfigureAwait(false);
+
+            var doubleResult = aggQuery.Aggregations.Max("maxBiddingNumber").Value;
+            long result = Convert.ToInt64(doubleResult.GetValueOrDefault(0));
+
+            return result;
+        }
     }
 }

@@ -15,5 +15,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
 
         Task SetReferenceNumber(Guid id, string newReferenceNumber);
 
+        Task<bool> SetLastIssuedBiddingNumberIfNotSet(long lastIssuedBiddingNumber);
+
     }
 }

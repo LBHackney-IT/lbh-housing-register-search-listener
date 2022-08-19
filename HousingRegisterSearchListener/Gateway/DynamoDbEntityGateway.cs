@@ -22,6 +22,7 @@ namespace HousingRegisterSearchListener.Gateway
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<DynamoDbEntityGateway> _logger;
         private readonly IAmazonDynamoDB _client;
+        private const string HousingRegisterTableName = "HousingRegister";
 
         public IDynamoDBContext DynamoDbContext => _dynamoDbContext;
 
@@ -45,8 +46,7 @@ namespace HousingRegisterSearchListener.Gateway
         {
             _logger.LogDebug($"Setting reference number for applicationID {id} to {newReferenceNumber}");
 
-            AmazonDynamoDBClient client = new AmazonDynamoDBClient();
-            string tableName = "HousingRegister";
+            string tableName = HousingRegisterTableName;
 
             var request = new UpdateItemRequest
             {
@@ -64,6 +64,33 @@ namespace HousingRegisterSearchListener.Gateway
 
             _ = await _client.UpdateItemAsync(request);
 
+        }
+
+        public async Task<bool> SetLastIssuedBiddingNumberIfNotSet(long lastIssuedBiddingNumber)
+        {
+            bool biddingNumberSet = false;
+
+            try
+            {
+                var putItemResult = await _client.PutItemAsync(new PutItemRequest
+                {
+                    TableName = HousingRegisterTableName,
+                    Item = new Dictionary<string, AttributeValue> {
+                    { "id", new AttributeValue("HousingRegister#BiddingNumberAtomicCounter") },
+                    { "lastIssuedBiddingNumber", new AttributeValue{ N = lastIssuedBiddingNumber.ToString() } }
+                },
+                    ConditionExpression = "attribute_not_exists(id)"
+                }).ConfigureAwait(false);
+
+                biddingNumberSet = true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                biddingNumberSet = false;
+                _logger.LogInformation("Bidding number already set");
+            }
+
+            return biddingNumberSet;
         }
 
     }
