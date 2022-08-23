@@ -68,7 +68,12 @@ namespace HousingRegisterSearchListener.Functions
                 await searchGateway.DropIndex(oldIndexName);
             }
 
-            return $"Indexed {documentsIndexed} documents";
+            //Set up the atomic counter in dynamodb for bidding number
+            var lastIssuedBiddingNumber = await searchGateway.GetHighestBiddingNumber().ConfigureAwait(false);
+
+            var biddingNumberSet = await dynamoDBGateway.SetLastIssuedBiddingNumberIfNotSet(lastIssuedBiddingNumber).ConfigureAwait(false);
+
+            return $"Indexed {documentsIndexed} documents, bidding number {(biddingNumberSet ? $"set to {lastIssuedBiddingNumber}" : "already set")}";
         }
     }
 }

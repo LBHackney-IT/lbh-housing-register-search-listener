@@ -26,5 +26,7 @@ namespace HousingRegisterSearchListener.Gateway.Interfaces
         Task SetRecommendedServerSettings();
 
         Task DropIndex(string indexName);
+
+        Task<long> GetHighestBiddingNumber();
     }
 }

@@ -16,6 +16,7 @@ using Xunit;
 using HousingRegisterApi.V1.Domain;
 using FluentAssertions.Equivalency;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 
 namespace HousingRegisterSearchListener.Tests.Gateway
 {
@@ -27,15 +28,13 @@ namespace HousingRegisterSearchListener.Tests.Gateway
         private readonly DynamoDbEntityGateway _classUnderTest;
         private readonly IDynamoDbFixture _dbFixture;
         private IDynamoDBContext DynamoDb => _dbFixture.DynamoDbContext;
-        private Mock<IAmazonDynamoDB> _dynamoDbClient;
         private readonly List<Action> _cleanup = new List<Action>();
 
         public DynamoDbEntityGatewayTests(MockApplicationFactory appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
             _logger = new Mock<ILogger<DynamoDbEntityGateway>>();
-            _dynamoDbClient = new Mock<IAmazonDynamoDB>();
-            _classUnderTest = new DynamoDbEntityGateway(DynamoDb, _logger.Object, _dynamoDbClient.Object);
+            _classUnderTest = new DynamoDbEntityGateway(DynamoDb, _logger.Object, _dbFixture.DynamoDb);
         }
 
         public void Dispose()
@@ -100,6 +99,29 @@ namespace HousingRegisterSearchListener.Tests.Gateway
             result.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {id}", Times.Once());
+        }
+
+        [Fact]
+        public async Task SettingBiddingNumberWorksOnceOnly()
+        {
+            long lastBidingNumber = 70;
+
+            //Make sure the db doesnt contain an item already
+            try
+            {
+                await _dbFixture.DynamoDb.DeleteItemAsync(new DeleteItemRequest("HousingRegister", new Dictionary<string, AttributeValue> { { "id", new AttributeValue("HousingRegister#BiddingNumberAtomicCounter") } })).ConfigureAwait(false);
+            }
+            catch (ResourceNotFoundException)
+            { }
+
+            var firstResult = await _classUnderTest.SetLastIssuedBiddingNumberIfNotSet(lastBidingNumber).ConfigureAwait(false);
+
+            var secondResult = await _classUnderTest.SetLastIssuedBiddingNumberIfNotSet(lastBidingNumber).ConfigureAwait(false);
+
+            firstResult.Should().Be(true, "because the bidding number should not be set in a new database");
+
+            secondResult.Should().Be(false, "because the bidding number should have already been set");
+
         }
     }
 }
