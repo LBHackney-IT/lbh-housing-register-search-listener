@@ -64,3 +64,6 @@ tmp/
 .ionide
 
 testresults/
+
+# ggshield cache
+.cache_ggshield
