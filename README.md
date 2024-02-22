@@ -4,8 +4,8 @@ Base Listener is a boilerplate template application for creating for new Listene
 
 ## Stack
 
-- .NET Core as a web framework.
-- xUnit as a test framework.
+-   .NET Core as a web framework.
+-   xUnit as a test framework.
 
 ## Contributing
 
@@ -24,9 +24,15 @@ To serve the application, run it using your IDE of choice, we use Visual Studio 
 **Note**
 When running locally the appropriate database conneciton details are still needed.
 
+### Pre-commit hooks
+
+Repository has pre-commit hooks configuration to prevent direct commits to main branches and for scanning secrets. Please ensure you have [pre-commit framework](https://pre-commit.com/) installed before starting development work.
+
 ##### DynamoDb
+
 To use a local instance of DynamoDb, this will need to be installed. This is most easily done using [Docker](https://www.docker.com/products/docker-desktop).
 Run the following command, specifying the local path where you want the container's shared volume to be stored.
+
 ```
 docker run --name dynamodb-local -p 8000:8000 -v <PUT YOUR LOCAL PATH HERE>:/data/ amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath /data
 ```
@@ -34,15 +40,21 @@ docker run --name dynamodb-local -p 8000:8000 -v <PUT YOUR LOCAL PATH HERE>:/dat
 If you would like to see what is in your local DynamoDb instance using a simple gui, then [this admin tool](https://github.com/aaronshaf/dynamodb-admin) can do that.
 
 The application can also be served locally using docker:
+
 1.  Add you security credentials to AWS CLI.
+
 ```sh
 $ aws configure
 ```
+
 2. Log into AWS ECR.
+
 ```sh
 $ aws ecr get-login --no-include-email
 ```
+
 3. Build and serve the application. It will be available in the port 3000.
+
 ```sh
 $ make build && make serve
 ```
@@ -62,7 +74,7 @@ Then we have an automated six step deployment process, which runs in CircleCI.
 5. We manually confirm a production deployment in the CircleCI workflow once we're happy with our changes in staging.
 6. The application is deployed to production.
 
-Our staging and production environments are hosted by AWS. We would deploy to production per each feature/config merged into  `release`  branch.
+Our staging and production environments are hosted by AWS. We would deploy to production per each feature/config merged into `release` branch.
 
 ### Creating A PR
 
@@ -90,37 +102,40 @@ $ make test
 ```
 
 ### Agreed Testing Approach
-- Use xUnit, FluentAssertions and Moq
-- Always follow a TDD approach
-- Tests should be independent of each other
-- Gateway tests should interact with a real test instance of the database
-- Test coverage should never go down. (See the [test project readme](HousingRegisterSearchListener.Tests/readme.md#Run-coverage) for how to run a coverage check.)
-- All use cases should be covered by E2E tests
-- Optimise when test run speed starts to hinder development
-- Unit tests and E2E tests should run in CI
-- Test database schemas should match up with production database schema
-- Have integration tests which test from the DynamoDb database to API Gateway
+
+-   Use xUnit, FluentAssertions and Moq
+-   Always follow a TDD approach
+-   Tests should be independent of each other
+-   Gateway tests should interact with a real test instance of the database
+-   Test coverage should never go down. (See the [test project readme](HousingRegisterSearchListener.Tests/readme.md#Run-coverage) for how to run a coverage check.)
+-   All use cases should be covered by E2E tests
+-   Optimise when test run speed starts to hinder development
+-   Unit tests and E2E tests should run in CI
+-   Test database schemas should match up with production database schema
+-   Have integration tests which test from the DynamoDb database to API Gateway
 
 ## Data Migrations
+
 ### A good data migration
-- Record failure logs
-- Automated
-- Reliable
-- As close to real time as possible
-- Observable monitoring in place
-- Should not affect any existing databases
+
+-   Record failure logs
+-   Automated
+-   Reliable
+-   As close to real time as possible
+-   Observable monitoring in place
+-   Should not affect any existing databases
 
 ## Contacts
 
 ### Active Maintainers
 
-- **Selwyn Preston**, Lead Developer at London Borough of Hackney (selwyn.preston@hackney.gov.uk)
-- **Mirela Georgieva**, Lead Developer at London Borough of Hackney (mirela.georgieva@hackney.gov.uk)
-- **Matt Keyworth**, Lead Developer at London Borough of Hackney (matthew.keyworth@hackney.gov.uk)
+-   **Selwyn Preston**, Lead Developer at London Borough of Hackney (selwyn.preston@hackney.gov.uk)
+-   **Mirela Georgieva**, Lead Developer at London Borough of Hackney (mirela.georgieva@hackney.gov.uk)
+-   **Matt Keyworth**, Lead Developer at London Borough of Hackney (matthew.keyworth@hackney.gov.uk)
 
 ### Other Contacts
 
-- **Rashmi Shetty**, Product Owner at London Borough of Hackney (rashmi.shetty@hackney.gov.uk)
+-   **Rashmi Shetty**, Product Owner at London Borough of Hackney (rashmi.shetty@hackney.gov.uk)
 
 [docker-download]: https://www.docker.com/products/docker-desktop
 [AWS-CLI]: https://aws.amazon.com/cli/
