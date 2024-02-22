@@ -85,7 +85,7 @@ commands:
           command: |
             cd ./HousingRegisterSearchListener/
             sls deploy --stage <<parameters.stage>> --conceal
-      # only required for initial search configuration or for re-indexing records
+      # only required for initial search configuration
       # - run:
       #     name: Invoke elasticsearch deploy hook function
       #     command: |
