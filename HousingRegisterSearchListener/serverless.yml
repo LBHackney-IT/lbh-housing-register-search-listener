@@ -10,7 +10,7 @@ provider:
   region: eu-west-2  
 
 package:
-  artifact: ./bin/release/net6.0/lbh-housing-register-search-listener.zip
+  artifact: ./bin/release/net8.0/lbh-housing-register-search-listener.zip
 
 functions:
   HousingRegisterSearchListener:
