@@ -223,31 +223,39 @@ workflows:
           filters:
             branches:
               only: master
-      - permit-production-terraform-release:
+      # - permit-production-terraform-release:
+      #     type: approval
+      #     requires:
+      #       - deploy-to-staging
+      #     filters:
+      #       branches:
+      #         only: master
+      - permit-production-workflow:
           type: approval
-          requires:
-            - deploy-to-staging
+          requires: 
+            - deploy-to-staging 
           filters:
             branches:
-              only: master
+              only: master      
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
-              - permit-production-terraform-release
+              #- permit-production-terraform-release
+              - permit-production-workflow
           filters:
              branches:
                only: master
-      - terraform-init-and-apply-to-production:
-          requires:
-            - assume-role-production
-          filters:
-            branches:
-              only: master
+      # - terraform-init-and-apply-to-production:
+      #     requires:
+      #       - assume-role-production
+      #     filters:
+      #       branches:
+      #         only: master
       - permit-production-release:
           type: approval
           requires:
-            - deploy-to-staging
-            - terraform-init-and-apply-to-production
+            - assume-role-production
+            #- terraform-init-and-apply-to-production
           filters:
             branches:
               only: master
@@ -257,7 +265,7 @@ workflows:
             - "Serverless Framework"
           requires:
             - permit-production-release
-            - terraform-init-and-apply-to-production
+            #- terraform-init-and-apply-to-production
           filters:
             branches:
               only: master
