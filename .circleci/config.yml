@@ -38,8 +38,9 @@ commands:
           root: *workspace_root
           paths:
             - .aws
-  terraform-init-then-apply:
-    description: "Initializes and applies terraform configuration"
+
+  terraform-init-then-plan:
+    description: "Initializes and runs a plan from terraform configuration"
     parameters:
       environment:
         type: string
@@ -53,10 +54,30 @@ commands:
             terraform init
           name: get and init
       - run:
+          name: plan
+          command: |
+            cd ./terraform/<<parameters.environment>>/
+            terraform plan -out=plan.out
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - .aws
+            - project/*
+  
+  terraform-apply:
+    description: "Applies terraform configuration"
+    parameters:
+      environment:
+        type: string
+    steps:
+      - *attach_workspace
+      - checkout
+      - run:
           name: apply
           command: |
             cd ./terraform/<<parameters.environment>>/
-            terraform apply -auto-approve
+            terraform apply -auto-approve plan.out      
+  
   deploy-lambda:
     description: "Deploys via Serverless"
     parameters:
@@ -85,7 +106,7 @@ commands:
           command: |
             cd ./HousingRegisterSearchListener/
             sls deploy --stage <<parameters.stage>> --conceal
-      # only required for initial search configuration
+      # only required for initial search configuration, please do not enable unless setting up a new environment
       # - run:
       #     name: Invoke elasticsearch deploy hook function
       #     command: |
@@ -129,20 +150,35 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
-  terraform-init-and-apply-to-development:
+  terraform-init-and-plan-development:
     executor: docker-terraform
     steps:
-      - terraform-init-then-apply:
+      - terraform-init-then-plan:
           environment: "development"
-  terraform-init-and-apply-to-staging:
+  terraform-init-and-plan-staging:
     executor: docker-terraform
     steps:
-      - terraform-init-then-apply:
+      - terraform-init-then-plan:
           environment: "staging"
-  terraform-init-and-apply-to-production:
+  terraform-init-and-plan-production:
     executor: docker-terraform
     steps:
-      - terraform-init-then-apply:
+      - terraform-init-then-plan:
+          environment: "production"
+  terraform-apply-development:
+    executor: docker-terraform
+    steps:
+      - terraform-apply:
+          environment: "development"
+  terraform-apply-staging:
+    executor: docker-terraform
+    steps:
+      - terraform-apply:
+          environment: "staging"
+  terraform-apply-production:
+    executor: docker-terraform
+    steps:
+      - terraform-apply:
           environment: "production"
   deploy-to-development:
     executor: docker-dotnet
@@ -171,101 +207,176 @@ workflows:
           context: api-assume-role-housing-development-context
           requires:
             - build-and-test
+            - check-code-formatting
           filters:
             branches:
-              only: development
-      - terraform-init-and-apply-to-development:
-          requires:
-            - assume-role-development
-          filters:
-            branches:
-              only: development
+              only: development     
       - deploy-to-development:
           context:
             - api-nuget-token-context
             - "Serverless Framework"
           requires:
-            - terraform-init-and-apply-to-development
+            - assume-role-development
           filters:
             branches:
               only: development
+    
   check-and-deploy-staging-and-production:
-      jobs:
-      - check-code-formatting:
-          context: api-nuget-token-context
-          filters:
+    jobs:
+    - check-code-formatting:
+        context: api-nuget-token-context
+        filters:
+          branches:
+            only: master
+    - build-and-test:
+        context: api-nuget-token-context
+        filters:
+          branches:
+            only: master
+    - assume-role-staging:
+        context: api-assume-role-housing-staging-context
+        requires:
+            - build-and-test
+        filters:
             branches:
               only: master
-      - build-and-test:
-          context: api-nuget-token-context
+    - deploy-to-staging:
+        context:
+          - api-nuget-token-context
+          - "Serverless Framework"
+        requires:
+          - assume-role-staging
+        filters:
+          branches:
+            only: master
+    - permit-production-workflow:
+        type: approval
+        requires: 
+          - deploy-to-staging 
+        filters:
+          branches:
+            only: master      
+    - assume-role-production:
+        context: api-assume-role-housing-production-context
+        requires:
+            - permit-production-workflow
+        filters:
+            branches:
+              only: master
+    - permit-production-release:
+        type: approval
+        requires:
+          - assume-role-production
+        filters:
+          branches:
+            only: master
+    - deploy-to-production:
+        context:
+          - api-nuget-token-context
+          - "Serverless Framework"
+        requires:
+          - permit-production-release
+        filters:
+          branches:
+            only: master
+
+  deploy-development-terraform:
+    jobs:
+      - permit-development-terraform-workflow:
+          type: approval
+          filters:
+            branches:
+              only: development
+      - assume-role-development:
+          context: api-assume-role-housing-development-context
+          requires:
+            - permit-development-terraform-workflow
+          filters:
+            branches:
+              only: development    
+      - terraform-init-and-plan-development:
+          requires:
+            - assume-role-development
+          filters:
+            branches:
+              only: development
+      - permit-development-terraform-release:
+          type: approval
+          requires:
+            - terraform-init-and-plan-development
+          filters:
+            branches:
+              only: development
+      - terraform-apply-development:
+          requires:
+            - permit-development-terraform-release
+          filters:
+            branches:
+              only: development
+  
+  deploy-staging-and-production-terraform:
+    jobs:
+      - permit-staging-terraform-workflow:
+          type: approval
           filters:
             branches:
               only: master
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
-              - build-and-test
+              - permit-staging-terraform-workflow
           filters:
              branches:
                only: master
-      - terraform-init-and-apply-to-staging:
+      - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
           filters:
             branches:
               only: master
-      - deploy-to-staging:
-          context:
-            - api-nuget-token-context
-            - "Serverless Framework"
+      - permit-staging-terraform-release:
+          type: approval
           requires:
-            - terraform-init-and-apply-to-staging
+            - terraform-init-and-plan-staging
           filters:
             branches:
               only: master
-      # - permit-production-terraform-release:
-      #     type: approval
-      #     requires:
-      #       - deploy-to-staging
-      #     filters:
-      #       branches:
-      #         only: master
-      - permit-production-workflow:
-          type: approval
-          requires: 
-            - deploy-to-staging 
+      - terraform-apply-staging:
+          requires:
+            - permit-staging-terraform-release
           filters:
             branches:
-              only: master      
+              only: master
+      - permit-production-terraform-workflow:
+          type: approval
+          requires:
+            - terraform-apply-staging
+          filters:
+            branches:
+              only: master
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
-              #- permit-production-terraform-release
-              - permit-production-workflow
+              - permit-production-terraform-workflow
           filters:
              branches:
                only: master
-      # - terraform-init-and-apply-to-production:
-      #     requires:
-      #       - assume-role-production
-      #     filters:
-      #       branches:
-      #         only: master
-      - permit-production-release:
-          type: approval
+      - terraform-init-and-plan-production:
           requires:
             - assume-role-production
-            #- terraform-init-and-apply-to-production
           filters:
             branches:
               only: master
-      - deploy-to-production:
-          context:
-            - api-nuget-token-context
-            - "Serverless Framework"
+      - permit-production-terraform-release:
+          type: approval
           requires:
-            - permit-production-release
-            #- terraform-init-and-apply-to-production
+            - terraform-init-and-plan-production
+          filters:
+            branches:
+              only: master
+      - terraform-apply-production:
+          requires:
+            - permit-production-terraform-release
           filters:
             branches:
               only: master
