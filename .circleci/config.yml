@@ -54,10 +54,10 @@ commands:
             terraform init
           name: get and init
       - run:
-          name: plan
+          name: plan destroy
           command: |
             cd ./terraform/<<parameters.environment>>/
-            terraform plan -out=plan.out
+            terraform plan -destroy -out=plan.out
       - persist_to_workspace:
           root: *workspace_root
           paths:
@@ -102,10 +102,10 @@ commands:
             chmod +x ./build.sh
             ./build.sh
       - run:
-          name: Deploy lambda
+          name: Remove lambda
           command: |
             cd ./HousingRegisterSearchListener/
-            sls deploy --stage <<parameters.stage>> --conceal
+            sls remove --stage <<parameters.stage>> --conceal
       # only required for initial search configuration, please do not enable unless setting up a new environment
       # - run:
       #     name: Invoke elasticsearch deploy hook function
