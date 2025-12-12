@@ -24,8 +24,8 @@ functions:
       ### Re-use the same parameter as used by web api applications
       ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
       SEARCHDOMAIN: ${ssm:/housing-${self:provider.stage}/${self:provider.stage}/elasticsearch-domain}
-    events:
-      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn}
+    # events:
+    #   - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housingregistersearch/arn}
   SearchDeploymentHookFunction:
     name: ${self:service}-${self:provider.stage}-deploymenthook
     handler: HousingRegisterSearchListener::HousingRegisterSearchListener.Functions.SearchDeploymentHookFunction::Handle
