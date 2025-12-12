@@ -30,7 +30,7 @@ locals {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-housing-production"
+    bucket  = "terraform-state-disaster-recovery"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/lbh-housing-register-search-listener/state"
@@ -50,7 +50,7 @@ resource "aws_sqs_queue" "housingregistersearch_dead_letter_queue" {
   name                        = "housingregistersearchdeadletterqueue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
-  kms_master_key_id           = "alias/housing-production-cmk"
+  kms_master_key_id           = "alias/dr-backup-restore-handler-sns-topic-encryption"  # HARDCODED VALUE - UPDATED FOR DR
   kms_data_key_reuse_period_seconds = 300
 }
 
@@ -61,7 +61,7 @@ resource "aws_sqs_queue" "housingregistersearch_queue" {
   name                        = "housingregistersearchqueue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
-  kms_master_key_id           = "alias/housing-production-cmk"           # This is a custom key
+  kms_master_key_id           = "alias/dr-backup-restore-handler-sns-topic-encryption"           # HARDCODED VALUE - UPDATED FOR DR
   kms_data_key_reuse_period_seconds = 300
   redrive_policy              = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.housingregistersearch_dead_letter_queue.arn,
