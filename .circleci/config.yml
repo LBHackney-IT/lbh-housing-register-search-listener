@@ -105,7 +105,7 @@ commands:
           name: Remove lambda
           command: |
             cd ./HousingRegisterSearchListener/
-            sls remove --stage <<parameters.stage>> --conceal
+            sls remove --stage <<parameters.stage>>
       # only required for initial search configuration, please do not enable unless setting up a new environment
       # - run:
       #     name: Invoke elasticsearch deploy hook function
