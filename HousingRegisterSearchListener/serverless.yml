@@ -154,7 +154,7 @@ custom:
     staging:
       - Ref: LambdaSecurityGroup
     production:
-      - sg-08b1acb08bf85654b  # Updated for disaster recovery
+      - sg-090d35fde302bdf90  # Updated for disaster recovery
   subnets:
     development:      
       - subnet-0140d06fb84fdb547
