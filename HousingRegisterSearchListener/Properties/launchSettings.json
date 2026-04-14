@@ -9,7 +9,7 @@
         "ENVIRONMENT": "LocalDevelopment",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000",
         "DynamoDb_LocalMode": "true",
-        "SEARCHDOMAIN": "http://localhost:9200"
+        "SEARCH_DOMAIN": "http://localhost:9200"
       }
     }
   }

@@ -22,4 +22,10 @@ COPY . .
 
 RUN dotnet build -c debug -o out HousingRegisterSearchListener.Tests/HousingRegisterSearchListener.Tests.csproj
 
-CMD dotnet test
+CMD dotnet test HousingRegisterSearchListener.Tests/HousingRegisterSearchListener.Tests.csproj -c Debug \
+    --logger "console;verbosity=minimal" \
+    --logger "junit;LogFilePath=/app/test_results/junit.xml" \
+    /p:CollectCoverage=true \
+    /p:CoverletOutput=/app/coverage/ \
+    /p:CoverletOutputFormat=opencover \
+    /p:CoverletOutputFile=coverage.opencover.xml
