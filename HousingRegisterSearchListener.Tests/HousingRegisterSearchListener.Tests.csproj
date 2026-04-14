@@ -8,12 +8,17 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <NoWarn>CA1307;CA1051;CA1822;CA1001;CA1062;CA2000;S2699</NoWarn>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.TestUtilities" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.0.0" />
     <PackageReference Include="AutoFixture" Version="4.17.0" />
+    <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="coverlet.msbuild" Version="3.1.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -34,18 +39,18 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-    
+
   <ItemGroup>
     <ProjectReference Include="..\HousingRegisterSearchListener\HousingRegisterSearchListener.csproj" />
   </ItemGroup>
-    
+
   <ItemGroup>
       <Compile Remove="TestResults\**" />
       <Content Remove="TestResults\**" />
       <EmbeddedResource Remove="TestResults\**" />
       <None Remove="TestResults\**" />
   </ItemGroup>
-    
+
   <ItemGroup>
     <Folder Include="Factories\" />
   </ItemGroup>
