@@ -10,7 +10,7 @@ executors:
       - image: circleci/python:3.7
   docker-terraform:
     docker:
-      - image: "hashicorp/terraform:light"
+      - image: "hashicorp/terraform:1.14"
   docker-dotnet:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -47,11 +47,11 @@ commands:
       - *attach_workspace
       - checkout
       - run:
+          name: get and init
           command: |
             cd ./terraform/<<parameters.environment>>/
             terraform get -update=true
             terraform init
-          name: get and init
       - run:
           name: plan
           command: |
@@ -70,7 +70,6 @@ commands:
         type: string
     steps:
       - *attach_workspace
-      - checkout
       - run:
           name: apply
           command: |
@@ -82,31 +81,33 @@ commands:
     parameters:
       stage:
         type: enum
-        enum: ['development', 'staging', 'production']
+        enum: ["development", "staging", "production"]
       aws-central-parameter-account:
         type: enum
-        enum:
-          [
-            'AWS_ACCOUNT_DEVELOPMENT',
-            'AWS_ACCOUNT_STAGING',
-            'AWS_ACCOUNT_PRODUCTION',
-          ]
+        enum: ["AWS_ACCOUNT_DEVELOPMENT", "AWS_ACCOUNT_STAGING", "AWS_ACCOUNT_PRODUCTION"]
     steps:
       - *attach_workspace
       - checkout
-
+      - restore_cache:
+          name: Restore NuGet cache
+          keys:
+            - nuget-v1-{{ checksum "HousingRegisterSearchListener/HousingRegisterSearchListener.csproj" }}
+            - nuget-v1-
+      - restore_cache:
+          name: Restore dotnet global tools cache
+          keys:
+            - dotnet-lambda-tools-4.0.0
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - npm-serverless-v4
       - run:
-          name: Install Node
+          name: Install Node and AWS CLI
           command: |
             apt-get update
-            apt-get install -y curl ca-certificates
+            apt-get install -y curl ca-certificates awscli
             curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
             apt-get install -y nodejs
-      - run:
-          name: Install AWS CLI
-          command: |
-            apt-get update
-            apt-get install -y awscli
       - run:
           name: Fetch SSM parameters from central account for serverless deployment
           command: |
@@ -135,6 +136,21 @@ commands:
       #     command: |
       #       cd ./HousingRegisterSearchListener/
       #       sls invoke --stage <<parameters.stage>> --function SearchDeploymentHookFunction --data \"${CIRCLE_BUILD_NUM}\"
+      - save_cache:
+          name: Save NuGet cache
+          key: nuget-v1-{{ checksum "HousingRegisterSearchListener/HousingRegisterSearchListener.csproj" }}
+          paths:
+            - ~/.nuget/packages
+      - save_cache:
+          name: Save dotnet global tools cache
+          key: dotnet-lambda-tools-4.0.0
+          paths:
+            - ~/.dotnet/tools
+      - save_cache:
+          name: Save npm cache
+          key: npm-serverless-v4
+          paths:
+            - ~/.npm
 
 jobs:
   check-code-formatting:
@@ -142,17 +158,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dotnet format
-          command: dotnet tool install dotnet-format --tool-path ./dotnet-format-local/
-      - run:
           name: Run formatter check
-          command: ./dotnet-format-local/dotnet-format --check
+          command: dotnet format --verify-no-changes
+
   build-and-test:
     executor: docker-python
     steps:
       - checkout:
           method: full
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: build
           command: docker-compose build lbh-housing-register-search-listener-test
@@ -174,69 +189,81 @@ jobs:
       - store_test_results:
           path: test_results
       - sonarcloud/scan
+
   assume-role-development:
     executor: docker-python
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
+
   assume-role-staging:
     executor: docker-python
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_STAGING
+
   assume-role-production:
     executor: docker-python
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
+
   terraform-init-and-plan-development:
     executor: docker-terraform
     steps:
       - terraform-init-then-plan:
           environment: "development"
+
   terraform-init-and-plan-staging:
     executor: docker-terraform
     steps:
       - terraform-init-then-plan:
           environment: "staging"
+
   terraform-init-and-plan-production:
     executor: docker-terraform
     steps:
       - terraform-init-then-plan:
           environment: "production"
+
   terraform-apply-development:
     executor: docker-terraform
     steps:
       - terraform-apply:
           environment: "development"
+
   terraform-apply-staging:
     executor: docker-terraform
     steps:
       - terraform-apply:
           environment: "staging"
+
   terraform-apply-production:
     executor: docker-terraform
     steps:
       - terraform-apply:
           environment: "production"
+
   deploy-to-development:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
-          stage: 'development'
-          aws-central-parameter-account: 'AWS_ACCOUNT_DEVELOPMENT'
+          stage: "development"
+          aws-central-parameter-account: "AWS_ACCOUNT_DEVELOPMENT"
+
   deploy-to-staging:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "staging"
-          aws-central-parameter-account: 'AWS_ACCOUNT_STAGING'
+          aws-central-parameter-account: "AWS_ACCOUNT_STAGING"
+
   deploy-to-production:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "production"
-          aws-central-parameter-account: 'AWS_ACCOUNT_PRODUCTION'
+          aws-central-parameter-account: "AWS_ACCOUNT_PRODUCTION"
 
 workflows:
   check-and-deploy-development:
@@ -254,7 +281,7 @@ workflows:
             - check-code-formatting
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
       - deploy-to-development:
           context:
             - api-nuget-token-context
@@ -264,70 +291,70 @@ workflows:
             - assume-role-development
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
 
   check-and-deploy-staging-and-production:
     jobs:
-    - check-code-formatting:
-        context: api-nuget-token-context
-        filters:
-          branches:
-            only: master
-    - build-and-test:
-        context:
-          - SonarCloud
-          - api-nuget-token-context
-        filters:
-          branches:
-            only: master
-    - assume-role-staging:
-        context: api-assume-role-housing-staging-context
-        requires:
+      - check-code-formatting:
+          context: api-nuget-token-context
+          filters:
+            branches:
+              only: master
+      - build-and-test:
+          context:
+            - SonarCloud
+            - api-nuget-token-context
+          filters:
+            branches:
+              only: master
+      - assume-role-staging:
+          context: api-assume-role-housing-staging-context
+          requires:
             - build-and-test
-        filters:
+          filters:
             branches:
               only: master
-    - deploy-to-staging:
-        context:
-          - api-nuget-token-context
-          - Serverless Framework
-          - central-parameter-store-context
-        requires:
-          - assume-role-staging
-        filters:
-          branches:
-            only: master
-    - permit-production-workflow:
-        type: approval
-        requires:
-          - deploy-to-staging
-        filters:
-          branches:
-            only: master
-    - assume-role-production:
-        context: api-assume-role-housing-production-context
-        requires:
+      - deploy-to-staging:
+          context:
+            - api-nuget-token-context
+            - Serverless Framework
+            - central-parameter-store-context
+          requires:
+            - assume-role-staging
+          filters:
+            branches:
+              only: master
+      - permit-production-workflow:
+          type: approval
+          requires:
+            - deploy-to-staging
+          filters:
+            branches:
+              only: master
+      - assume-role-production:
+          context: api-assume-role-housing-production-context
+          requires:
             - permit-production-workflow
-        filters:
+          filters:
             branches:
               only: master
-    - permit-production-release:
-        type: approval
-        requires:
-          - assume-role-production
-        filters:
-          branches:
-            only: master
-    - deploy-to-production:
-        context:
-          - api-nuget-token-context
-          - Serverless Framework
-          - central-parameter-store-context
-        requires:
-          - permit-production-release
-        filters:
-          branches:
-            only: master
+      - permit-production-release:
+          type: approval
+          requires:
+            - assume-role-production
+          filters:
+            branches:
+              only: master
+      - deploy-to-production:
+          context:
+            - api-nuget-token-context
+            - Serverless Framework
+            - central-parameter-store-context
+          requires:
+            - permit-production-release
+          filters:
+            branches:
+              only: master
 
   deploy-development-terraform:
     jobs:
@@ -335,35 +362,35 @@ workflows:
           type: approval
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
             - permit-development-terraform-workflow
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
       - terraform-init-and-plan-development:
           requires:
             - assume-role-development
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
       - permit-development-terraform-release:
           type: approval
           requires:
             - terraform-init-and-plan-development
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
       - terraform-apply-development:
           requires:
             - permit-development-terraform-release
           filters:
             branches:
-              only: development
+              only: bugfix/clean-circle
 
-  deploy-staging-and-production-terraform:
+  deploy-staging-terraform:
     jobs:
       - permit-staging-terraform-workflow:
           type: approval
@@ -373,10 +400,10 @@ workflows:
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
-              - permit-staging-terraform-workflow
+            - permit-staging-terraform-workflow
           filters:
-             branches:
-               only: master
+            branches:
+              only: master
       - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
@@ -396,20 +423,21 @@ workflows:
           filters:
             branches:
               only: master
+
+  deploy-production-terraform:
+    jobs:
       - permit-production-terraform-workflow:
           type: approval
-          requires:
-            - terraform-apply-staging
           filters:
             branches:
               only: master
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
-              - permit-production-terraform-workflow
+            - permit-production-terraform-workflow
           filters:
-             branches:
-               only: master
+            branches:
+              only: master
       - terraform-init-and-plan-production:
           requires:
             - assume-role-production
