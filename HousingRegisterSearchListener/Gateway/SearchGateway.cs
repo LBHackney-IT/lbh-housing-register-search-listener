@@ -24,7 +24,7 @@ namespace HousingRegisterSearchListener.Gateway
         public SearchGateway(ILogger<SearchGateway> logger, IConfiguration configuration)
         {
             _logger = logger;
-            _client = new ElasticClient(new Uri(configuration["SEARCHDOMAIN"]));
+            _client = new ElasticClient(new Uri(configuration["SEARCH_DOMAIN"]));
 
             _client.ConnectionSettings.IdProperties.Add(typeof(ApplicationSearchEntity), "ApplicationId");
         }
