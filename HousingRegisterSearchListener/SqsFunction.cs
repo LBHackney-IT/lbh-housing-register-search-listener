@@ -51,7 +51,7 @@ namespace HousingRegisterSearchListener
 
 
         /// <summary>
-        /// This method is called for every Lambda invocation. This method takes in an SQS event object and can be used 
+        /// This method is called for every Lambda invocation. This method takes in an SQS event object and can be used
         /// to respond to SQS messages.
         /// </summary>
         /// <param name="evnt"></param>
@@ -79,6 +79,9 @@ namespace HousingRegisterSearchListener
 
             var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
 
+            Logger.LogInformation("SNS event received {ApplicationId} {Id} {CorrelationId} {SqsMessageId}",
+                entityEvent.EntityId, entityEvent.Id, entityEvent.CorrelationId, message.MessageId);
+
             using (Logger.BeginScope("CorrelationId: {CorrelationId}", entityEvent.CorrelationId))
             {
                 try
@@ -99,7 +102,8 @@ namespace HousingRegisterSearchListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Exception processing message id: {message.MessageId}; type: {entityEvent.EventType}; entity id: {entityEvent.EntityId}");
+                    Logger.LogError(ex, "Exception processing message id: {MessageId}; type: {EventType}; entity id: {ApplicationId}; id: {Id}; correlation id: {CorrelationId}",
+                        message.MessageId, entityEvent.EventType, entityEvent.EntityId, entityEvent.Id, entityEvent.CorrelationId);
                     throw; // AWS will handle retry/moving to the dead letter queue
                 }
             }
