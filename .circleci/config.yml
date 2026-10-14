@@ -1,19 +1,19 @@
 version: 2.1
 
 orbs:
-  aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+  aws_assume_role: lbh-hackit/aws_assume_role@0.1.1
+  sonarcloud: sonarsource/sonarcloud@4.0.0
 
 executors:
   docker-python:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.14
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:1.14"
   docker-dotnet:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0
 
 references:
   workspace_root: &workspace_root "~"
@@ -170,10 +170,10 @@ jobs:
           docker_layer_caching: true
       - run:
           name: build
-          command: docker-compose build lbh-housing-register-search-listener-test
+          command: docker compose build lbh-housing-register-search-listener-test
       - run:
           name: Run tests
-          command: docker-compose run lbh-housing-register-search-listener-test
+          command: docker compose run lbh-housing-register-search-listener-test
       - run:
           name: Report
           command: |

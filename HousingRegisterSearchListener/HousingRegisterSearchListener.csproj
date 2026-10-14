@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- .NET 10 defaults NuGetAuditMode to all. Keep the .NET 8 direct-only audit so transitive vulnerability warnings do not fail restore. -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <AWSProjectType>Lambda</AWSProjectType>
 
@@ -13,7 +15,7 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <NoWarn>$(NoWarn);CA1062;CA2214;CS1591;S1699;S3442;CA2000;S3925;CA1032;CA1031;S4457</NoWarn>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
@@ -22,7 +24,7 @@
     <PackageReference Include="Elastic.Apm.Elasticsearch" Version="1.16.1" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.401">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -33,7 +35,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="NEST" Version="7.10.0" />
   </ItemGroup>
-    
+
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
