@@ -1,19 +1,19 @@
 version: 2.1
 
 orbs:
-  aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+  aws_assume_role: lbh-hackit/aws_assume_role@0.1.1
+  sonarcloud: sonarsource/sonarcloud@4.0.0
 
 executors:
   docker-python:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.14
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:1.14"
   docker-dotnet:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0
 
 references:
   workspace_root: &workspace_root "~"
@@ -105,7 +105,10 @@ commands:
           name: Install Node and AWS CLI
           command: |
             apt-get update
-            apt-get install -y curl ca-certificates awscli
+            apt-get install -y curl ca-certificates unzip
+            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+            unzip -q /tmp/awscliv2.zip -d /tmp
+            /tmp/aws/install
             curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
             apt-get install -y nodejs
       - run:
@@ -170,10 +173,10 @@ jobs:
           docker_layer_caching: true
       - run:
           name: build
-          command: docker-compose build lbh-housing-register-search-listener-test
+          command: docker compose build lbh-housing-register-search-listener-test
       - run:
           name: Run tests
-          command: docker-compose run lbh-housing-register-search-listener-test
+          command: docker compose run lbh-housing-register-search-listener-test
       - run:
           name: Report
           command: |

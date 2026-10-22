@@ -6,7 +6,7 @@ LBH Housing Register Search Listener is an AWS Lambda function that listens to S
 
 ## Stack
 
--   .NET 8 Core as the runtime framework.
+-   .NET 10 as the runtime framework.
 -   xUnit as a test framework.
 
 ## Contributing
